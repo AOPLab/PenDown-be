@@ -28,7 +28,7 @@
     PG_USERNAME=
     PG_PASSWORD=
     PG_DBNAME=
-    DOMAIN_NAME=localhost:8080
+    PORT=8080
     ```
 
 5. Start backend service
