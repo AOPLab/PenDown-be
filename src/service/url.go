@@ -1,13 +1,14 @@
 package service
 
 import (
-	"PenDown/src/model"
-	"PenDown/src/persistence"
 	"fmt"
 	"math/rand"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/AOPLab/PenDown-be/src/model"
+	"github.com/AOPLab/PenDown-be/src/persistence"
 )
 
 func AddUrl(Original_url string, expireAt time.Time) (*model.Url, error) {

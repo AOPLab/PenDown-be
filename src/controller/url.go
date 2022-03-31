@@ -1,11 +1,12 @@
 package controller
 
 import (
-	"PenDown/src/service"
 	"fmt"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/AOPLab/PenDown-be/src/service"
 
 	"github.com/gin-gonic/gin"
 )

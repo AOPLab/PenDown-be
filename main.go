@@ -1,14 +1,15 @@
 package main
 
 import (
-	"PenDown/src/config"
-	"PenDown/src/model"
-	"PenDown/src/persistence"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/AOPLab/PenDown-be/src/config"
+	"github.com/AOPLab/PenDown-be/src/model"
+	"github.com/AOPLab/PenDown-be/src/persistence"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -26,12 +27,12 @@ func main() {
 	}
 
 	host := os.Getenv("PG_HOST")
-	port := os.Getenv("PG_PORT")
+	pgPort := os.Getenv("PG_PORT")
 	username := os.Getenv("PG_USERNAME")
 	password := os.Getenv("PG_PASSWORD")
 	dbName := os.Getenv("PG_DBNAME")
 
-	dsn := "host=" + host + " port=" + port + " user=" + username + " password=" + password + " dbname=" + dbName
+	dsn := "host=" + host + " port=" + pgPort + " user=" + username + " password=" + password + " dbname=" + dbName
 	db, db_err := persistence.Initialize(dsn)
 	if db_err != nil {
 		log.Fatal("Error loading db")
@@ -49,10 +50,11 @@ func main() {
 	// Insert
 	db.Model(&model.Url{}).Create(&url)
 
-	domain := os.Getenv("DOMAIN_NAME")
+	port := os.Getenv("PORT")
+
 	router := gin.Default()
 	router.GET("/test", test)
 	config.Routes(router)
-
-	router.Run(domain)
+	port1 := ":" + port
+	router.Run(port1)
 }

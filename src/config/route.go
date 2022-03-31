@@ -1,7 +1,7 @@
 package config
 
 import (
-	"PenDown/src/controller"
+	"github.com/AOPLab/PenDown-be/src/controller"
 
 	"github.com/gin-gonic/gin"
 )

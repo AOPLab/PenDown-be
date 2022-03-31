@@ -1,4 +1,4 @@
-module PenDown
+module github.com/AOPLab/PenDown-be
 
 go 1.17
 
