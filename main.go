@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/AOPLab/PenDown-be/src/config"
 	"github.com/AOPLab/PenDown-be/src/model"
@@ -38,23 +36,23 @@ func main() {
 		log.Fatal("Error loading db")
 	}
 
-	db.AutoMigrate(&model.Url{})
+	db.AutoMigrate(&model.User{})
 
-	t, _ := time.Parse(time.RFC3339, "2030-01-02T15:04:05Z")
-	fmt.Println(t)
-	url := model.Url{
-		Original_url: "https://www.google.com.tw/",
-		Expired_date: t,
-		Url_id:       "ABCDEF",
-	}
+	// t, _ := time.Parse(time.RFC3339, "2030-01-02T15:04:05Z")
+	// fmt.Println(t)
+	// url := model.Url{
+	// 	Original_url: "https://www.google.com.tw/",
+	// 	Expired_date: t,
+	// 	Url_id:       "ABCDEF",
+	// }
 	// Insert
-	db.Model(&model.Url{}).Create(&url)
+	// db.Model(&model.Url{}).Create(&url)
 
-	port := os.Getenv("PORT")
+	// port := os.Getenv("PORT")
 
 	router := gin.Default()
 	router.GET("/test", test)
 	config.Routes(router)
-	port1 := ":" + port
-	router.Run(port1)
+	// port1 := ":" + port
+	router.Run(":8080")
 }
