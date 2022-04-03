@@ -9,7 +9,7 @@ import (
 type Note struct {
 	gorm.Model
 	ID             int64     `gorm:"primary_key;auto_increment" json:"note_id"`
-	User_id        int64     `json:"user_id"`
+	User_id        int64     `gorm:"not null" json:"user_id"`
 	Title          string    `gorm:"not null" json:"title"`
 	Description    string    `json:"description"`
 	Is_template    bool      `gorm:"default:false" json:"is_template"`
@@ -21,12 +21,21 @@ type Note struct {
 	Notability_Url string    `gorm:"default:null" json:"notability_url"`
 	CreatedAt      time.Time `json:"created_at"`
 	User           User      `gorm:"foreignKey:User_id;constraint:OnDelete:SET NULL;"`
+	Course         Course    `gorm:"foreignKey:Course_id;constraint:OnDelete:SET NULL;"`
 }
 
 type Liked struct {
 	gorm.Model
+	User_id int64 `gorm:"not null;uniqueIndex:compositeindex_like;" json:"user_id"`
+	Note_id int64 `gorm:"not null;uniqueIndex:compositeindex_like;" json:"note_id"`
+	User    User  `gorm:"foreignKey:User_id;constraint:OnDelete:CASCADE;"`
+	Note    Note  `gorm:"foreignKey:Note_id;constraint:OnDelete:CASCADE;"`
 }
 
 type Download struct {
 	gorm.Model
+	User_id int64 `gorm:"not null;uniqueIndex:compositeindex_download;" json:"user_id"`
+	Note_id int64 `gorm:"not null;uniqueIndex:compositeindex_download;" json:"note_id"`
+	User    User  `gorm:"foreignKey:User_id;constraint:OnDelete:CASCADE;"`
+	Note    Note  `gorm:"foreignKey:Note_id;constraint:OnDelete:CASCADE;"`
 }

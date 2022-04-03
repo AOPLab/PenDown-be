@@ -12,4 +12,8 @@ type Tag struct {
 
 type NoteTag struct {
 	gorm.Model
+	Tag_id  int64 `gorm:"not null;uniqueIndex:compositeindex;" json:"tag_id"`
+	Note_id int64 `gorm:"not null;uniqueIndex:compositeindex;" json:"note_id"`
+	Tag     Tag   `gorm:"foreignKey:Tag_id;constraint:OnDelete:CASCADE;"`
+	Note    Note  `gorm:"foreignKey:Note_id;constraint:OnDelete:CASCADE;"`
 }

@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO: to be deleted
 type Url struct {
 	gorm.Model
 	ID           int64     `gorm:"primary_key;auto_increment" json:"id"`
