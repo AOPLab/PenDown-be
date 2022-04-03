@@ -13,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
+
 func test(c *gin.Context) {
 	var message = "Hello world!"
 	c.IndentedJSON(http.StatusOK, message)
@@ -50,6 +51,8 @@ func main() {
 
 	// port := os.Getenv("PORT")
 
+	persistence.InitFirebase()
+	
 	router := gin.Default()
 	router.GET("/test", test)
 	config.Routes(router)
