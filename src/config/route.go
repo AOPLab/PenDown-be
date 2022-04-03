@@ -7,6 +7,12 @@ import (
 )
 
 func Routes(r *gin.Engine) {
+	public := r.Group("")
+	{
+		public.POST("/account", controller.Register)
+		public.POST("/login", controller.Login)
+	}
+
 	url := r.Group("")
 	{
 		url.POST("/api/v1/urls", controller.UploadUrl)
