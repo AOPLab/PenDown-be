@@ -36,7 +36,7 @@ func main() {
 		log.Fatal("Error loading db")
 	}
 
-	db.AutoMigrate(&model.User{}, &model.Follow{})
+	db.AutoMigrate(&model.User{}, &model.Follow{}, &model.School{}, &model.Course{}, &model.Tag{})
 
 	// t, _ := time.Parse(time.RFC3339, "2030-01-02T15:04:05Z")
 	// fmt.Println(t)
