@@ -38,16 +38,6 @@ func main() {
 
 	db.AutoMigrate(&model.User{}, &model.Follow{}, &model.School{}, &model.Course{}, &model.Tag{}, &model.Note{}, &model.Download{}, &model.NoteTag{}, &model.Liked{})
 
-	// t, _ := time.Parse(time.RFC3339, "2030-01-02T15:04:05Z")
-	// fmt.Println(t)
-	// url := model.Url{
-	// 	Original_url: "https://www.google.com.tw/",
-	// 	Expired_date: t,
-	// 	Url_id:       "ABCDEF",
-	// }
-	// Insert
-	// db.Model(&model.Url{}).Create(&url)
-
 	// port := os.Getenv("PORT")
 
 	router := gin.Default()
