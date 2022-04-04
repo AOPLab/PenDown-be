@@ -2,8 +2,10 @@ package persistence
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -11,9 +13,9 @@ import (
 
 	"context"
 
-	firebase "firebase.google.com/go"
-
 	cloud "cloud.google.com/go/storage"
+	firebase "firebase.google.com/go/v4"
+
 	"google.golang.org/api/option"
 )
 
@@ -55,5 +57,21 @@ func InitFirebase() {
 		log.Fatalf("error initializing cloud.NewClient: %v\n", err)
 	} else {
 		fmt.Println(storage)
+	}
+
+	// Test: upload a file
+	bucket := os.Getenv("BUCKET_NAME")
+	filePath := "test.txt"
+	src := strings.NewReader("Hello World!\n")
+
+	wc := storage.Bucket(bucket).Object(filePath).NewWriter(context.Background())
+	_, err = io.Copy(wc, src)
+	if err != nil {
+		log.Fatalf("error: %v\n", err)
+		return
+	}
+	if err := wc.Close(); err != nil {
+		log.Fatalf("error: %v\n", err)
+		return
 	}
 }
