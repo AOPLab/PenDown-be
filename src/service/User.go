@@ -1,24 +1,22 @@
 package service
 
 import (
-	"errors"
-
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
 )
 
-func Hash(password string) ([]byte, error) {
+func hash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }
 
-func VerifyPassword(hashedPassword, password string) error {
+func verifyPassword(hashedPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
 
 func AddUser(username string, full_name string, email string, password string) (*model.User, error) {
-	hashedPassword, err := Hash(password)
+	hashedPassword, err := hash(password)
 	if err != nil {
 		return nil, err
 	}
@@ -47,19 +45,15 @@ func findUserByUsername(username string) (*model.User, error) {
 }
 
 func VerifyLogin(username string, password string) (*model.User, error) {
-	hashedPassword, hash_err := Hash(password)
-	if hash_err != nil {
-		return nil, hash_err
-	}
-
 	user, err := findUserByUsername(username)
 
 	if err != nil {
 		return nil, err
 	}
-
-	if user.Password == string(hashedPassword) {
-		return user, nil
+	ver_err := verifyPassword(user.Password, password)
+	if ver_err != nil {
+		return nil, ver_err
 	}
-	return nil, errors.New("Login Fail")
+
+	return user, nil
 }

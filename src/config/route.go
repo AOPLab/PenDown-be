@@ -1,6 +1,9 @@
 package config
 
 import (
+	"net/http"
+
+	"github.com/AOPLab/PenDown-be/src/auth"
 	"github.com/AOPLab/PenDown-be/src/controller"
 
 	"github.com/gin-gonic/gin"
@@ -13,9 +16,15 @@ func Routes(r *gin.Engine) {
 		public.POST("/login", controller.Login)
 	}
 
-	url := r.Group("")
+	// protected member router
+	authorized := r.Group("/")
+	authorized.Use(auth.AuthRequired)
 	{
-		url.POST("/api/v1/urls", controller.UploadUrl)
-		url.GET("/:url_id", controller.RedirectUrl)
+		authorized.GET("/jwt/test", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{
+				"user_id": c.MustGet("user_id"),
+			})
+			return
+		})
 	}
 }

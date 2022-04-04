@@ -1,15 +1,14 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 )
 
 // custom claims
@@ -32,11 +31,11 @@ func SetClaim(user_id int64) (string, error) {
 		User: user_id,
 		StandardClaims: jwt.StandardClaims{
 			Audience:  strconv.FormatInt(user_id, 10),
-			ExpiresAt: now.Add(20 * time.Second).Unix(),
+			ExpiresAt: now.Add(24 * time.Hour).Unix(),
 			Id:        jwtId,
 			IssuedAt:  now.Unix(),
 			Issuer:    "ginJWT",
-			NotBefore: now.Add(10 * time.Second).Unix(),
+			NotBefore: now.Add(time.Second).Unix(),
 			Subject:   strconv.FormatInt(user_id, 10),
 		},
 	}
@@ -90,8 +89,7 @@ func AuthRequired(c *gin.Context) {
 	}
 
 	if claims, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid {
-		fmt.Println("account:", claims.User)
-		c.Set("user", claims.User)
+		c.Set("user_id", claims.User)
 		c.Next()
 	} else {
 		c.Abort()
