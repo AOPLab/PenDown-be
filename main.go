@@ -31,7 +31,7 @@ func main() {
 	dbName := os.Getenv("PG_DBNAME")
 
 	dsn := "host=" + host + " port=" + pgPort + " user=" + username + " password=" + password + " dbname=" + dbName
-	db, db_err := persistence.Initialize(dsn)
+	db, db_err := persistence.InitDB(dsn)
 	if db_err != nil {
 		log.Fatal("Error loading db")
 	}
