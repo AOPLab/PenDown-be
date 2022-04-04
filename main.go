@@ -36,17 +36,7 @@ func main() {
 		log.Fatal("Error loading db")
 	}
 
-	db.AutoMigrate(&model.User{})
-
-	// t, _ := time.Parse(time.RFC3339, "2030-01-02T15:04:05Z")
-	// fmt.Println(t)
-	// url := model.Url{
-	// 	Original_url: "https://www.google.com.tw/",
-	// 	Expired_date: t,
-	// 	Url_id:       "ABCDEF",
-	// }
-	// Insert
-	// db.Model(&model.Url{}).Create(&url)
+	db.AutoMigrate(&model.User{}, &model.Follow{}, &model.School{}, &model.Course{}, &model.Tag{}, &model.Note{}, &model.Download{}, &model.NoteTag{}, &model.Liked{})
 
 	// port := os.Getenv("PORT")
 
