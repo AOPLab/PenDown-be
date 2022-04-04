@@ -1,11 +1,10 @@
 package persistence
 
 import (
-	"fmt"
-	"io"
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 
 	"context"
 
@@ -19,45 +18,43 @@ import (
 var APP *firebase.App
 var Firebase_client *firestore.Client
 var Firebase_storage *cloud.Client
+var AccessId string
+var Pkey string
+var Bucket_name string
 
 func InitFirebase() {
 	var err error
 	sa_path := os.Getenv("SA_PATH")
 	sa := option.WithCredentialsFile(sa_path)
-	APP, err = firebase.NewApp(context.Background(), nil, sa)
-	if err != nil {
-		log.Fatalf("error initializing app: %v\n", err)
-	} else {
-		fmt.Println(APP)
-	}
+	// APP, err = firebase.NewApp(context.Background(), nil, sa)
+	// if err != nil {
+	// 	log.Fatalf("error initializing app: %v\n", err)
+	// }
 
-	Firebase_client, client_err := APP.Firestore(context.Background())
-	if client_err != nil {
-		log.Fatalf("error initializing Firestore: %v\n", err)
-	} else {
-		fmt.Println(Firebase_client)
-	}
+	// Firebase_client, client_err := APP.Firestore(context.Background())
+	// if client_err != nil {
+	// 	log.Fatalf("error initializing Firestore: %v\n", err)
+	// } else {
+	// 	fmt.Println(Firebase_client)
+	// }
 
-	Firebase_storage, storage_err := cloud.NewClient(context.Background(), sa)
+	var storage_err error
+	Firebase_storage, storage_err = cloud.NewClient(context.Background(), sa)
 	if storage_err != nil {
 		log.Fatalf("error initializing cloud.NewClient: %v\n", err)
-	} else {
-		fmt.Println(Firebase_storage)
 	}
 
-	// Test: upload a file
-	bucket := os.Getenv("BUCKET_NAME")
-	filePath := "test.txt"
-	src := strings.NewReader("Hello World!\n")
+	Bucket_name = os.Getenv("BUCKET_NAME")
 
-	wc := Firebase_storage.Bucket(bucket).Object(filePath).NewWriter(context.Background())
-	_, err = io.Copy(wc, src)
-	if err != nil {
-		log.Fatalf("error: %v\n", err)
-		return
-	}
-	if err := wc.Close(); err != nil {
-		log.Fatalf("error: %v\n", err)
-		return
-	}
+	// Open our jsonFile
+	jsonFile, err := os.Open(sa_path)
+	// defer the closing of our jsonFile so that we can parse it later on
+	defer jsonFile.Close()
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	var result map[string]interface{}
+	json.Unmarshal([]byte(byteValue), &result)
+	AccessId = result["client_email"].(string)
+	Pkey = result["private_key"].(string)
+
+	jsonFile.Close()
 }
