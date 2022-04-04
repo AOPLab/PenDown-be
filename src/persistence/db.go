@@ -9,18 +9,14 @@ import (
 
 var DB *gorm.DB
 
-func Initialize(dsn string) (*gorm.DB, error) {
+func InitDB(dsn string) (*gorm.DB, error) {
 	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
+
 	sqlDB, _ := DB.DB()
-	sqlDB.SetMaxIdleConns(10)
-
-	// SetMaxOpenConns sets the maximum number of open connections to the database.
-	sqlDB.SetMaxOpenConns(100)
-
-	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetMaxIdleConns(10)           // SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
+	sqlDB.SetMaxOpenConns(100)          // SetMaxOpenConns sets the maximum number of open connections to the database.
+	sqlDB.SetConnMaxLifetime(time.Hour) // SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
 
 	return DB, err
 }
