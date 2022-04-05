@@ -3,6 +3,7 @@ module github.com/AOPLab/PenDown-be
 go 1.17
 
 require (
+	cloud.google.com/go/firestore v1.5.0
 	cloud.google.com/go/storage v1.10.0
 	firebase.google.com/go/v4 v4.7.1
 	github.com/gin-gonic/gin v1.7.7
@@ -16,7 +17,6 @@ require (
 
 require (
 	cloud.google.com/go v0.75.0 // indirect
-	cloud.google.com/go/firestore v1.5.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
