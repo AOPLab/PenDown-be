@@ -4,11 +4,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/AOPLab/PenDown-be/src/config"
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -43,6 +45,14 @@ func main() {
 	persistence.InitFirebase()
 
 	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
+		AllowHeaders:     []string{"Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "accept", "origin", "Cache-Control", "X-Requested-With"},
+		AllowCredentials: true,
+		MaxAge:           time.Minute,
+	}))
+
 	router.GET("/test", test)
 	config.Routes(router)
 	// port1 := ":" + port

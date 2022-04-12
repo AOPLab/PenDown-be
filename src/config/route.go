@@ -10,14 +10,14 @@ import (
 )
 
 func Routes(r *gin.Engine) {
-	public := r.Group("")
+	public := r.Group("api")
 	{
 		public.POST("/account", controller.Register)
 		public.POST("/login", controller.Login)
 	}
 
 	// protected member router
-	authorized := r.Group("/")
+	authorized := r.Group("/api")
 	authorized.Use(auth.AuthRequired)
 	{
 		authorized.GET("/jwt/test", func(c *gin.Context) {
