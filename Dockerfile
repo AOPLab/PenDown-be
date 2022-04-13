@@ -1,14 +1,13 @@
-FROM golang:alpine
-ENV CGO_ENABLED=0
-
-RUN apk add git
+FROM golang:1.16-alpine
 
 WORKDIR /app
+
 COPY . .
 
 RUN go mod download
-RUN go build -o main .
 
-EXPOSE $PORT
+RUN go build -o /pendown-be
 
-CMD [ "./main" ]
+EXPOSE 8080
+
+CMD [ "/pendown-be" ]

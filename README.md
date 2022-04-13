@@ -34,5 +34,20 @@
 5. Start backend service
 
     ```shell
+    go mod download
     go run .
     ```
+
+## Use docker
+
+1. build
+
+   ```shell
+    docker build -t 'pendown-be' .
+   ```
+
+2. run
+
+   ```shell
+    docker run -d -p 8080:8080 pendown-be
+   ```
