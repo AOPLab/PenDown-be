@@ -21,6 +21,11 @@ type LoginInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type GoogleLoginInput struct {
+	GoogleToken string `json:"google_token" binding:"required"`
+	Name        string `json:"name" binding:"required"`
+}
+
 // Register
 func Register(c *gin.Context) {
 	var form AddAccountInput
@@ -66,7 +71,7 @@ func Login(c *gin.Context) {
 	}
 
 	// set jwt
-	token, jwt_err := auth.SetClaim(user.ID)
+	token, jwt_err := auth.SetClaim(user.ID, false)
 	if jwt_err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": jwt_err.Error(),
@@ -76,6 +81,49 @@ func Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"account_id": user.ID,
 		"token":      token,
+	})
+	return
+}
+
+func GoogleLogin(c *gin.Context) {
+	var form GoogleLoginInput
+
+	bindErr := c.BindJSON(&form)
+	if bindErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": bindErr.Error(),
+		})
+		return
+	}
+
+	// verify user
+	googleUser, err := service.VerifyIdToken(form.GoogleToken)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	// fmt.Println(user)
+	// "audience": "",
+	// "email": "gary6658@ntu.im",
+	// "expires_in": 3320,
+	// "issued_to": "",
+	// "user_id": "104599823526264245462",
+	// "verified_email": true
+
+	// TODO: Verify Google Login
+
+	// set jwt
+	// token, jwt_err := auth.SetClaim(user.ID)
+	// if jwt_err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error": jwt_err.Error(),
+	// 	})
+	// 	return
+	// }
+	c.JSON(http.StatusOK, gin.H{
+		"account_id": googleUser,
 	})
 	return
 }

@@ -44,6 +44,14 @@ func findUserByUsername(username string) (*model.User, error) {
 	return &user, nil
 }
 
+func findUserByGoogleId(google_id int64) (*model.User, error) {
+	var user model.User
+	if res := persistence.DB.Where("google_id = ?", google_id).Find(&user); res.Error != nil {
+		return nil, res.Error
+	}
+	return &user, nil
+}
+
 func VerifyLogin(username string, password string) (*model.User, error) {
 	user, err := findUserByUsername(username)
 
@@ -53,6 +61,15 @@ func VerifyLogin(username string, password string) (*model.User, error) {
 	ver_err := verifyPassword(user.Password, password)
 	if ver_err != nil {
 		return nil, ver_err
+	}
+
+	return user, nil
+}
+
+func VerifyGoogleLogin(google_id int64) (*model.User, error) {
+	user, err := findUserByGoogleId(google_id)
+	if err != nil {
+		return nil, err
 	}
 
 	return user, nil
