@@ -18,3 +18,7 @@ steps:
     commands:
       - docker rm -f pd-be
       - docker run -d -p 8080:8080 --name pd-be pendown-be
+
+trigger:
+  branch:
+    - main
