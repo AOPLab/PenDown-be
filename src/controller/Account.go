@@ -1,6 +1,7 @@
 package controller
 
 import (
+	_ "fmt"
 	"net/http"
 	"strconv"
 
@@ -25,7 +26,12 @@ type EditPasswordInput struct {
 // unfinished
 func GetPublicProfile(c *gin.Context) {
 	id := c.Params.ByName("account_id")
-	account_id, _ := strconv.ParseInt(id, 0, 64)
+	account_id, pasre_err := strconv.ParseInt(id, 0, 64)
+	if pasre_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "account_id not exists",
+		})
+	}
 	user, followers_num, following_num, note_num, err := service.FindPublicProfile(account_id)
 
 	if err != nil {
