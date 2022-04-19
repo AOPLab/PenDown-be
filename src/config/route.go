@@ -26,7 +26,7 @@ func Routes(r *gin.Engine) {
 			c.JSON(http.StatusOK, gin.H{
 				"user_id": c.MustGet("user_id"),
 			})
-			return
 		})
+		authorized.GET("account", controller.GetPrivateProfile)
 	}
 }
