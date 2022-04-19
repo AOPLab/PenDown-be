@@ -38,7 +38,7 @@ func main() {
 		log.Fatal("Error loading db")
 	}
 
-	db.AutoMigrate(&model.User{}, &model.Follow{}, &model.School{}, &model.Course{}, &model.Tag{}, &model.Note{}, &model.Download{}, &model.NoteTag{}, &model.Liked{})
+	db.AutoMigrate(&model.User{}, &model.Follow{}, &model.School{}, &model.Course{}, &model.Tag{}, &model.Note{}, &model.Download{}, &model.NoteTag{}, &model.Saved{})
 
 	// port := os.Getenv("PORT")
 
