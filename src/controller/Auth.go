@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"math/rand"
 	"net/http"
+	"strconv"
 
 	"github.com/AOPLab/PenDown-be/src/auth"
+	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/service"
 
 	"github.com/gin-gonic/gin"
@@ -97,33 +100,49 @@ func GoogleLogin(c *gin.Context) {
 	}
 
 	// verify user
-	googleUser, err := service.VerifyIdToken(form.GoogleToken)
-	if err != nil {
+	googleUser, ver_err := service.VerifyIdToken(form.GoogleToken)
+	if ver_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"error": ver_err.Error(),
 		})
 		return
 	}
-	// fmt.Println(user)
-	// "audience": "",
-	// "email": "gary6658@ntu.im",
-	// "expires_in": 3320,
-	// "issued_to": "",
-	// "user_id": "104599823526264245462",
-	// "verified_email": true
 
-	// TODO: Verify Google Login
+	// Verify Google Login
+	var user *model.User
+	var err error
+	user, err = service.VerifyGoogleLogin(googleUser.UserId)
+	if err != nil {
+		if err.Error() == "record not found" {
+			var add_err error
+			rand_num := strconv.Itoa(rand.Intn(1000))
+			username := form.Name + "-" + rand_num
+			user, add_err = service.AddGoogleUser(googleUser.UserId, username, form.Name, googleUser.Email)
+			if add_err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": err.Error(),
+				})
+				return
+			}
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+	}
 
 	// set jwt
-	// token, jwt_err := auth.SetClaim(user.ID)
-	// if jwt_err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{
-	// 		"error": jwt_err.Error(),
-	// 	})
-	// 	return
-	// }
+	token, jwt_err := auth.SetClaim(user.ID, true)
+	if jwt_err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": jwt_err.Error(),
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"account_id": googleUser,
+		"account_id": user.ID,
+		"token":      token,
 	})
 	return
 }
