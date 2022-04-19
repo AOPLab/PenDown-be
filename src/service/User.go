@@ -36,10 +36,34 @@ func AddUser(username string, full_name string, email string, password string) (
 	}
 }
 
+func AddGoogleUser(google_id string, username string, full_name string, email string) (*model.User, error) {
+	user := &model.User{
+		Google_ID: google_id,
+		Username:  username,
+		Full_name: full_name,
+		Email:     email,
+	}
+
+	db_err := persistence.DB.Model(&model.User{}).Create(&user).Error
+	if db_err != nil {
+		return nil, db_err
+	} else {
+		return user, nil
+	}
+}
+
 func findUserByUsername(username string) (*model.User, error) {
 	var user model.User
-	if res := persistence.DB.Where("username = ?", username).Find(&user); res.Error != nil {
+	if res := persistence.DB.Where("username = ?", username).First(&user); res.Error != nil {
 		return nil, res.Error
+	}
+	return &user, nil
+}
+
+func findUserByGoogleId(google_id string) (*model.User, error) {
+	var user model.User
+	if err := persistence.DB.Where("google_id = ?", google_id).First(&user).Error; err != nil {
+		return nil, err
 	}
 	return &user, nil
 }
@@ -53,6 +77,15 @@ func VerifyLogin(username string, password string) (*model.User, error) {
 	ver_err := verifyPassword(user.Password, password)
 	if ver_err != nil {
 		return nil, ver_err
+	}
+
+	return user, nil
+}
+
+func VerifyGoogleLogin(google_id string) (*model.User, error) {
+	user, err := findUserByGoogleId(google_id)
+	if err != nil {
+		return nil, err
 	}
 
 	return user, nil

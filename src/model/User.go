@@ -19,7 +19,7 @@ const (
 type User struct {
 	gorm.Model
 	ID          int64      `gorm:"primary_key;auto_increment" json:"user_id"`
-	Google_ID   int64      `json:"google_id"`
+	Google_ID   string     `gorm:"default null" json:"google_id"`
 	Username    string     `gorm:"not null;unique" json:"username"`
 	Full_name   string     `gorm:"not null" json:"full_name"`
 	Email       string     `gorm:"not null" json:"email"`
