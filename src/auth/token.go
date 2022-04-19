@@ -13,7 +13,8 @@ import (
 
 // custom claims
 type Claims struct {
-	User int64 `json:"user_id"`
+	User         int64 `json:"user_id"`
+	IsGoogleUser bool  `json:"is_google_user"`
 	jwt.StandardClaims
 }
 
@@ -23,12 +24,13 @@ var jwt_token = os.Getenv("jwt_token")
 var jwtSecret = []byte(jwt_token)
 
 // generate JWT
-func SetClaim(user_id int64) (string, error) {
+func SetClaim(user_id int64, is_google_user bool) (string, error) {
 	now := time.Now()
 	jwtId := strconv.FormatInt(user_id, 10) + strconv.FormatInt(now.Unix(), 10)
 	// set claims and sign
 	claims := Claims{
-		User: user_id,
+		User:         user_id,
+		IsGoogleUser: is_google_user,
 		StandardClaims: jwt.StandardClaims{
 			Audience:  strconv.FormatInt(user_id, 10),
 			ExpiresAt: now.Add(24 * time.Hour).Unix(),
@@ -89,6 +91,7 @@ func AuthRequired(c *gin.Context) {
 	}
 
 	if claims, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid {
+		c.Set("is_google_user", claims.IsGoogleUser)
 		c.Set("user_id", claims.User)
 		c.Next()
 	} else {

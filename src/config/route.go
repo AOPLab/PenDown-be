@@ -14,6 +14,7 @@ func Routes(r *gin.Engine) {
 	{
 		public.POST("/account", controller.Register)
 		public.POST("/login", controller.Login)
+		public.POST("/login/google", controller.GoogleLogin)
 	}
 
 	// protected member router
