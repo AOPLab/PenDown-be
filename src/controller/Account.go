@@ -29,6 +29,12 @@ func GetPublicProfile(c *gin.Context) {
 	user, followers_num, following_num, note_num, err := service.FindPublicProfile(account_id)
 
 	if err != nil {
+		if err.Error() == "record not found" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "account_id not exists",
+			})
+			return
+		}
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
@@ -38,7 +44,7 @@ func GetPublicProfile(c *gin.Context) {
 		"username":      user.Username,
 		"description":   user.Description,
 		"status":        user.Status,
-		"bean":          user.Point,
+		"bean":          user.Bean,
 		"followers_num": followers_num,
 		"following_num": following_num,
 		"note_num":      note_num,

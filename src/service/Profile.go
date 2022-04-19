@@ -5,14 +5,14 @@ import (
 	"github.com/AOPLab/PenDown-be/src/persistence"
 )
 
-var PublicProfileFields = []string{"username", "description", "status", "point"}
+var PublicProfileFields = []string{"username", "description", "status", "bean"}
 
 func FindPublicProfile(account_id int64) (*model.User, int64, int64, int64, error) {
 	user := &model.User{}
 	var followers_num int64
 	var following_num int64
 	var note_num int64
-	err := persistence.DB.Select(PublicProfileFields).Where("ID=?", account_id).Find(&user).Error
+	err := persistence.DB.Select(PublicProfileFields).Where("ID=?", account_id).First(&user).Error
 	if err != nil {
 		return nil, 0, 0, 0, err
 	} else {
