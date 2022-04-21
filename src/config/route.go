@@ -27,5 +27,6 @@ func Routes(r *gin.Engine) {
 			})
 			return
 		})
+		authorized.POST("/notes", controller.AddNote)
 	}
 }
