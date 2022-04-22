@@ -1,50 +1,39 @@
 package service
 
 import (
-	"fmt"
 	"image/jpeg"
 	"io"
+	"mime/multipart"
 
 	"github.com/gen2brain/go-fitz"
 )
 
-func Fitz() {
-	doc, err := fitz.New("test.pdf")
+func Fitz(filepath string, file multipart.File) error {
+	// doc, err := fitz.New("test.pdf")
+	doc, err := fitz.NewFromReader(file)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	defer doc.Close()
 
 	img, err := doc.Image(0)
 	if err != nil {
-		panic(err)
+		return err
 	}
-
-	// f, err := os.Create(filepath.Join("./tempFile", "temp.jpg"))
-	// if err != nil {
-	// 	panic(err)
-	// }
 
 	r, w := io.Pipe()
 
 	go func() {
-		jpeg.Encode(w, img, &jpeg.Options{jpeg.DefaultQuality})
+		o := jpeg.Options{Quality: 80}
+		jpeg.Encode(w, img, &o)
 		w.Close()
 	}()
 
-	// err = jpeg.Encode(w, img, &jpeg.Options{jpeg.DefaultQuality})
-	// if err != nil {
-	// 	panic(err)
-	// }
+	upload_err := UploadImg(filepath, r)
+	if upload_err != nil {
+		return upload_err
+	}
 
-	// f, err = os.Open("./tempFile/temp.jpg")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer f.Close()
-	UploadImg("temp.jpg", r)
-
-	url, _ := SignedFileUrl("temp.jpg")
-	fmt.Print(url)
+	return nil
 }
