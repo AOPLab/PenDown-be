@@ -167,3 +167,74 @@ func UploadGoodnote(c *gin.Context) {
 	})
 	return
 }
+
+// Upload PDF File
+func UploadPdf(c *gin.Context) {
+	// user_id := c.MustGet("user_id").(int64)
+	id := c.Params.ByName("note_id")
+	note_id, parse_err := strconv.ParseInt(id, 0, 64)
+	if parse_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Note_id not exists",
+		})
+	}
+
+	file, file_err := c.FormFile("file")
+	if file_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": file_err.Error(),
+		})
+	}
+
+	// Check Content-Type
+	if file.Header.Get("Content-Type") != "application/pdf" {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "FileTypeError",
+		})
+		return
+	}
+
+	// blobFile, err := file.Open()
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
+
+	// // Get Note
+	// note, note_err := service.GetNoteById(user_id, note_id)
+	// if note_err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"error": note_err.Error(),
+	// 	})
+	// }
+
+	// // Generate file path
+	// time := strconv.FormatInt(time.Now().Unix(), 10)
+	// filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".goodnote"
+	// path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
+	// fmt.Print(path)
+
+	// // Upload file
+	// upload_err := service.UploadFile(path, blobFile)
+	// if upload_err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"error": upload_err.Error(),
+	// 	})
+	// }
+
+	// // Update filename
+	// update_err := service.UpdateGoodnoteFilename(note.ID, filename)
+	// if update_err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"error": update_err.Error(),
+	// 	})
+	// }
+
+	c.JSON(http.StatusOK, gin.H{
+		"note_id":      note_id,
+		"pdf_filename": file.Header.Get("Content-Type"),
+	})
+	return
+}
