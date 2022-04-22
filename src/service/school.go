@@ -15,7 +15,7 @@ func FindSchools() ([]*model.School, error) {
 	return schools, nil
 }
 
-func FindSchool()(school_id int64) (*model.School, error) {
+func FindSchool(school_id int64) (*model.School, error) {
 
 	var school model.School
 	if res := persistence.DB.Where("ID = ?", school_id).First(&school); res.Error != nil {
