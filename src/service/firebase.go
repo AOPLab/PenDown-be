@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 	"log"
-	"strings"
+	"mime/multipart"
 	"time"
 
 	"github.com/AOPLab/PenDown-be/src/persistence"
@@ -26,12 +26,9 @@ func SignedFileUrl(filePath string) (string, error) {
 	return url, nil
 }
 
-// TODO: Change to file format
-func UploadFile(filePath string) error {
-	src := strings.NewReader("Hello World!\n")
-
+func UploadFile(filePath string, file multipart.File) error {
 	wc := persistence.Firebase_storage.Bucket(persistence.Bucket_name).Object(filePath).NewWriter(context.Background())
-	_, err := io.Copy(wc, src)
+	_, err := io.Copy(wc, file)
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 		return err
