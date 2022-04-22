@@ -28,5 +28,7 @@ func Routes(r *gin.Engine) {
 			return
 		})
 		authorized.POST("/notes", controller.AddNote)
+		authorized.POST("/notes/:note_id/tags/:tag_id", controller.AddNoteTag)
+		authorized.DELETE("/notes/:note_id/tags/:tag_id", controller.DeleteNoteTag)
 	}
 }

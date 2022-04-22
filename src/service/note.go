@@ -1,16 +1,36 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
 )
 
-func AddNoteTag(note_id int64, tag_id int64) error {
+func AddNoteTag(user_id int64, note_id int64, tag_id int64) error {
+	_, note_err := GetNoteById(user_id, note_id)
+	if note_err != nil {
+		return errors.New("NoteNotExist")
+	}
+
 	note_tag := &model.NoteTag{
 		Note_id: note_id,
 		Tag_id:  tag_id,
 	}
 	db_err := persistence.DB.Model(&model.NoteTag{}).Create(&note_tag).Error
+	if db_err != nil {
+		return db_err
+	}
+	return nil
+}
+
+func DeleteNoteTag(user_id int64, note_id int64, tag_id int64) error {
+	_, note_err := GetNoteById(user_id, note_id)
+	if note_err != nil {
+		return errors.New("NoteNotExist")
+	}
+
+	db_err := persistence.DB.Unscoped().Where("note_id = ? AND tag_id = ?", note_id, tag_id).Delete(&model.NoteTag{}).Error
 	if db_err != nil {
 		return db_err
 	}
@@ -29,6 +49,19 @@ func AddNote(user_id int64, title string, description string, is_template bool, 
 	}
 
 	db_err := persistence.DB.Model(&model.Note{}).Create(&note).Error
+	if db_err != nil {
+		return nil, db_err
+	}
+
+	return note, nil
+}
+
+func GetNoteById(user_id int64, note_id int64) (*model.Note, error) {
+	note := &model.Note{
+		ID:      note_id,
+		User_id: user_id,
+	}
+	db_err := persistence.DB.Where(&note).First(&note).Error
 	if db_err != nil {
 		return nil, db_err
 	}
