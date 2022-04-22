@@ -194,6 +194,8 @@ func UploadPdf(c *gin.Context) {
 		return
 	}
 
+	service.Fitz()
+
 	// blobFile, err := file.Open()
 	// if err != nil {
 	// 	c.JSON(http.StatusInternalServerError, gin.H{

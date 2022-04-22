@@ -39,3 +39,17 @@ func UploadFile(filePath string, file multipart.File) error {
 	}
 	return nil
 }
+
+func UploadImg(filePath string, img io.Reader) error {
+	wc := persistence.Firebase_storage.Bucket(persistence.Bucket_name).Object(filePath).NewWriter(context.Background())
+	_, err := io.Copy(wc, img)
+	if err != nil {
+		log.Fatalf("error: %v\n", err)
+		return err
+	}
+	if err := wc.Close(); err != nil {
+		log.Fatalf("error: %v\n", err)
+		return err
+	}
+	return nil
+}
