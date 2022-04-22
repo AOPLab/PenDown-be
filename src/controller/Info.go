@@ -55,3 +55,20 @@ func GetTags(c *gin.Context) {
 	return
 
 }
+
+// GET Schools
+func GetSchools(c *gin.Context) {
+	schools, err := service.FindSchools()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	} else {
+		var interfaceSlice []interface{} = make([]interface{}, len(schools))
+		for i, school := range schools {
+			interfaceSlice[i] = school
+		}
+		c.JSON(200, interfaceSlice)
+	}
+	return
+}
