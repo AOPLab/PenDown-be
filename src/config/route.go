@@ -28,5 +28,7 @@ func Routes(r *gin.Engine) {
 			})
 		})
 		authorized.GET("account", controller.GetPrivateProfile)
+		authorized.PATCH("account", controller.EditProfile)
+		authorized.PUT("account/:account_id/pass_hash", controller.EditPassword)
 	}
 }
