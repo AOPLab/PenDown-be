@@ -37,3 +37,21 @@ func AddTag(c *gin.Context) {
 	})
 	return
 }
+
+// GET Tags
+func GetTags(c *gin.Context) {
+	tags, err := service.FindTags()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	} else {
+		var interfaceSlice []interface{} = make([]interface{}, len(tags))
+		for i, tag := range tags {
+			interfaceSlice[i] = tag
+		}
+		c.JSON(200, interfaceSlice)
+	}
+	return
+
+}

@@ -18,3 +18,14 @@ func AddTag(tag_name string) (*model.Tag, error) {
 
 	return tag, nil
 }
+
+func FindTags() ([]*model.Tag, error) {
+
+	var tags []*model.Tag
+	// var tags *model.Tag
+
+	if res := persistence.DB.Find(&tags); res.Error != nil {
+		return nil, res.Error
+	}
+	return tags, nil
+}
