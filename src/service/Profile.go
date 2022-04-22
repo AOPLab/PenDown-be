@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
 )
@@ -74,7 +75,7 @@ func EditPassword(account_id int64, form EditPasswordInput) error {
 		return find_err
 	}
 
-	if user.Google_ID != "" {
+	if user.Password == "" {
 		if form.Old_password != "" {
 			return errors.New("crypto/bcrypt: hashedPassword is not the hash of the given password")
 		}
