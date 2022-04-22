@@ -78,3 +78,13 @@ func UpdateNotabilityFilename(note_id int64, filename string) error {
 
 	return nil
 }
+
+func UpdateGoodnoteFilename(note_id int64, filename string) error {
+	note := &model.Note{ID: note_id}
+	db_err := persistence.DB.Model(&note).Update("goodnotes_filename", filename).Error
+	if db_err != nil {
+		return db_err
+	}
+
+	return nil
+}
