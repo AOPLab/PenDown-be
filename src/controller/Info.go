@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/AOPLab/PenDown-be/src/service"
 
@@ -69,6 +70,36 @@ func GetSchools(c *gin.Context) {
 			interfaceSlice[i] = school
 		}
 		c.JSON(200, interfaceSlice)
+	}
+	return
+}
+
+// GET School
+func GetSchool(c *gin.Context) {
+	id := c.Params.ByName("school_id")
+	school_id, pasre_err := strconv.ParseInt(id, 0, 64)
+	if pasre_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "account_id not exists",
+		})
+	}
+	school, err := service.FindSchool(school_id)
+
+	if err != nil {
+		if err.Error() == "record not found" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "school_id not exists",
+			})
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+		}
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"school_id":   school.ID,
+			"school_name": school.School_name,
+		})
 	}
 	return
 }
