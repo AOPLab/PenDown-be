@@ -26,7 +26,7 @@ func GetSchools(c *gin.Context) {
 		var interfaceSlice []interface{} = make([]interface{}, len(schools))
 		for i, school := range schools {
 			schoolInfo := &SchoolResult{
-				School_id:   school.ID, // 改成小寫開頭會錯
+				School_id:   school.ID,
 				School_name: school.School_name,
 			}
 			interfaceSlice[i] = schoolInfo

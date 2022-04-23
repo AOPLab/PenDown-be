@@ -56,7 +56,7 @@ func GetTags(c *gin.Context) {
 		var interfaceSlice []interface{} = make([]interface{}, len(tags))
 		for i, tag := range tags {
 			tagInfo := &TagResult{
-				Tag_id:   tag.ID, // 改成小寫開頭會錯
+				Tag_id:   tag.ID,
 				Tag_name: tag.Tag_name,
 			}
 			interfaceSlice[i] = tagInfo

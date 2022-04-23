@@ -37,7 +37,7 @@ func GetSchoolCourse(c *gin.Context) {
 		var interfaceSlice []interface{} = make([]interface{}, len(schoolCourse))
 		for i, course := range schoolCourse {
 			courseInfo := &CourseResult{
-				School_id:   course.School_id, // 改成小寫開頭會錯
+				School_id:   course.School_id,
 				Course_id:   course.ID,
 				Course_name: course.Course_name,
 				Course_no:   course.Course_no,
