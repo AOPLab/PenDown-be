@@ -38,7 +38,7 @@ func AddTag(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"tag_name": tag.ID,
+		"tag_id": tag.ID,
 	})
 	return
 }
