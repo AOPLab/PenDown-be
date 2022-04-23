@@ -226,9 +226,9 @@ func UploadPdf(c *gin.Context) {
 	// Generate pdf file path
 	time := strconv.FormatInt(time.Now().Unix(), 10)
 	filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".pdf"
-	preview_filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".jpg"
 	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
-	preview_path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + preview_filename
+	// preview_filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".jpg"
+	// preview_path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + preview_filename
 	// fmt.Print(path)
 
 	// Upload pdf file
@@ -240,26 +240,102 @@ func UploadPdf(c *gin.Context) {
 		return
 	}
 
-	blobFile2, err := file.Open()
+	// blobFile2, err := file.Open()
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
+	// defer blobFile2.Close()
+
+	// // Upload pdf preview file
+	// preview_err := service.Fitz(preview_path, blobFile2)
+	// if preview_err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"error": preview_err.Error(),
+	// 	})
+	// 	return
+	// }
+
+	// Update filename (including pdf and preview)
+	update_err := service.UpdatePdfFilename(note.ID, filename)
+	if update_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": update_err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"note_id":      note.ID,
+		"pdf_filename": filename,
+	})
+	return
+}
+
+// Upload Preview File
+func UploadPreview(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+	id := c.Params.ByName("note_id")
+	note_id, parse_err := strconv.ParseInt(id, 0, 64)
+	if parse_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Note_id not exists",
+		})
+		return
+	}
+
+	file, file_err := c.FormFile("file")
+	if file_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": file_err.Error(),
+		})
+		return
+	}
+
+	// Check Content-Type
+	if file.Header.Get("Content-Type") != "image/jpeg" && file.Header.Get("Content-Type") != "image/png" {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "FileTypeError",
+		})
+		return
+	}
+
+	blobFile, err := file.Open()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	defer blobFile2.Close()
+	defer blobFile.Close()
 
-	// Upload pdf preview file
-	preview_err := service.Fitz(preview_path, blobFile2)
-	if preview_err != nil {
+	// Get Note
+	note, note_err := service.GetNoteById(user_id, note_id)
+	if note_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": preview_err.Error(),
+			"error": note_err.Error(),
 		})
 		return
 	}
 
-	// Update filename (including pdf and preview)
-	update_err := service.UpdatePdfFilename(note.ID, filename, preview_filename)
+	// Generate preview file path
+	time := strconv.FormatInt(time.Now().Unix(), 10)
+	filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".pdf"
+	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
+
+	// Upload preview image file
+	upload_err := service.UploadFile(path, blobFile)
+	if upload_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": upload_err.Error(),
+		})
+		return
+	}
+
+	// Update filename (preview)
+	update_err := service.UpdatePreviewFilename(note.ID, filename)
 	if update_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": update_err.Error(),
@@ -269,8 +345,7 @@ func UploadPdf(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"note_id":          note.ID,
-		"pdf_filename":     filename,
-		"preview_filename": preview_filename,
+		"preview_filename": filename,
 	})
 	return
 }

@@ -33,5 +33,6 @@ func Routes(r *gin.Engine) {
 		authorized.POST("/notes/:note_id/notability", controller.UploadNotability)
 		authorized.POST("/notes/:note_id/goodnote", controller.UploadGoodnote)
 		authorized.POST("/notes/:note_id/pdf", controller.UploadPdf)
+		authorized.POST("/notes/:note_id/preview", controller.UploadPreview)
 	}
 }
