@@ -5,11 +5,6 @@ import (
 	"github.com/AOPLab/PenDown-be/src/persistence"
 )
 
-// type result struct {
-// 	ID       int64
-// 	Tag_name string
-// }
-
 func AddTag(tag_name string) (*model.Tag, error) {
 
 	tag := &model.Tag{
