@@ -19,6 +19,7 @@ func Routes(r *gin.Engine) {
 		public.POST("/tag", controller.AddTag)
 		public.GET("/school", controller.GetSchools)
 		public.GET("/school/:school_id", controller.GetSchool)
+		public.GET("/school/:school_id/course", controller.GetSchoolCourse)
 
 	}
 

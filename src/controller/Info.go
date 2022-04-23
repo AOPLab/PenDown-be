@@ -80,7 +80,7 @@ func GetSchool(c *gin.Context) {
 	school_id, pasre_err := strconv.ParseInt(id, 0, 64)
 	if pasre_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "account_id not exists",
+			"error": "school_id not exists",
 		})
 	}
 	school, err := service.FindSchool(school_id)
@@ -100,6 +100,31 @@ func GetSchool(c *gin.Context) {
 			"school_id":   school.ID,
 			"school_name": school.School_name,
 		})
+	}
+	return
+}
+
+// GET School's Course
+func GetSchoolCourse(c *gin.Context) {
+	id := c.Params.ByName("school_id")
+	school_id, pasre_err := strconv.ParseInt(id, 0, 64)
+	if pasre_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "school_id not exists",
+		})
+	}
+	schoolCourse, err := service.FindSchoolCourse(school_id)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	} else {
+		var interfaceSlice []interface{} = make([]interface{}, len(schoolCourse))
+		for i, course := range schoolCourse {
+			interfaceSlice[i] = course
+		}
+		c.JSON(200, interfaceSlice)
 	}
 	return
 }
