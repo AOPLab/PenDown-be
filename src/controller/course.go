@@ -24,6 +24,7 @@ func GetSchoolCourse(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "school_id not exists",
 		})
+		return
 	}
 	schoolCourse, err := service.FindSchoolCourse(school_id)
 
@@ -31,6 +32,7 @@ func GetSchoolCourse(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
+		return
 	} else {
 		var interfaceSlice []interface{} = make([]interface{}, len(schoolCourse))
 		for i, course := range schoolCourse {
@@ -58,6 +60,7 @@ func GetCourse(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "course_id not exists",
 		})
+		return
 	}
 	course, err := service.FindCourse(course_id)
 
@@ -66,10 +69,12 @@ func GetCourse(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "course_id not exists",
 			})
+			return
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
+			return
 		}
 	} else {
 		c.JSON(http.StatusOK, gin.H{

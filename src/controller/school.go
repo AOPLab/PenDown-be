@@ -21,6 +21,7 @@ func GetSchools(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
+		return
 	} else {
 		var interfaceSlice []interface{} = make([]interface{}, len(schools))
 		for i, school := range schools {
@@ -46,6 +47,7 @@ func GetSchool(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "school_id not exists",
 		})
+		return
 	}
 	school, err := service.FindSchool(school_id)
 
@@ -54,10 +56,12 @@ func GetSchool(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "school_id not exists",
 			})
+			return
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
+			return
 		}
 	} else {
 		c.JSON(http.StatusOK, gin.H{
