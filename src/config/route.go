@@ -30,5 +30,12 @@ func Routes(r *gin.Engine) {
 		authorized.GET("account", controller.GetPrivateProfile)
 		authorized.PATCH("account", controller.EditProfile)
 		authorized.PUT("account/:account_id/pass_hash", controller.EditPassword)
+		authorized.POST("/notes", controller.AddNote)
+		authorized.POST("/notes/:note_id/tags/:tag_id", controller.AddNoteTag)
+		authorized.DELETE("/notes/:note_id/tags/:tag_id", controller.DeleteNoteTag)
+		authorized.POST("/notes/:note_id/notability", controller.UploadNotability)
+		authorized.POST("/notes/:note_id/goodnote", controller.UploadGoodnote)
+		authorized.POST("/notes/:note_id/pdf", controller.UploadPdf)
+		authorized.POST("/notes/:note_id/preview", controller.UploadPreview)
 	}
 }
