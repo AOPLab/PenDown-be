@@ -15,6 +15,7 @@ func Routes(r *gin.Engine) {
 		public.POST("/account", controller.Register)
 		public.POST("/login", controller.Login)
 		public.POST("/login/google", controller.GoogleLogin)
+		public.GET("/account/:account_id/profile", controller.GetPublicProfile)
 	}
 
 	// protected member router
@@ -25,7 +26,9 @@ func Routes(r *gin.Engine) {
 			c.JSON(http.StatusOK, gin.H{
 				"user_id": c.MustGet("user_id"),
 			})
-			return
 		})
+		authorized.GET("account", controller.GetPrivateProfile)
+		authorized.PATCH("account", controller.EditProfile)
+		authorized.PUT("account/:account_id/pass_hash", controller.EditPassword)
 	}
 }
