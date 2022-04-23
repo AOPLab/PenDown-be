@@ -35,6 +35,7 @@ func GetPublicProfile(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"account_id":    user.ID,
 			"username":      user.Username,
+			"full_name":     user.Full_name,
 			"description":   user.Description,
 			"status":        user.Status,
 			"bean":          user.Bean,
@@ -82,17 +83,18 @@ func EditProfile(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": bindErr.Error(),
 		})
+		return
+	}
+
+	err := service.EditProfile(account_id, form)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
 	} else {
-		err := service.EditProfile(account_id, form)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": bindErr.Error(),
-			})
-		} else {
-			c.JSON(http.StatusOK, gin.H{
-				"account_id": account_id,
-			})
-		}
+		c.JSON(http.StatusOK, gin.H{
+			"account_id": account_id,
+		})
 	}
 }
 

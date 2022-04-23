@@ -8,7 +8,7 @@ import (
 )
 
 var PublicProfileFields = []string{"user_id", "username", "description", "status", "bean"}
-var PrivateProfileFields = []string{"user_id", "username", "description", "status", "bean", "password", "google_id"}
+var PrivateProfileFields = []string{"user_id", "username", "full_name", "description", "status", "bean", "password", "google_id"}
 
 type EditAccountInput struct {
 	Username    string `json:"username"`
