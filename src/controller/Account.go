@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	_ "fmt"
 	"net/http"
 	"strconv"
@@ -10,6 +11,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type AddFollowInput struct {
+	Followee_id int64 `json:"account_id" binding:"required"`
+}
+
+func checkIdConsistence(c *gin.Context) (int64, error) {
+	token_account_id := c.MustGet("user_id").(int64)
+
+	id := c.Params.ByName("account_id")
+	account_id, pasre_err := strconv.ParseInt(id, 0, 64)
+
+	if pasre_err != nil {
+		return 0, pasre_err
+	}
+
+	if token_account_id != account_id {
+		return 0, errors.New("token_account_id and account_id inconsistence")
+	} else {
+		return account_id, nil
+	}
+}
+
 // GET /api/account/{account_id}/profile
 func GetPublicProfile(c *gin.Context) {
 	id := c.Params.ByName("account_id")
@@ -18,6 +40,7 @@ func GetPublicProfile(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "account_id not exists",
 		})
+		return
 	}
 	user, followers_num, following_num, note_num, err := service.FindPublicProfile(account_id)
 
@@ -100,41 +123,171 @@ func EditProfile(c *gin.Context) {
 
 // PUT /api/account/{account_id}/pass_hash
 func EditPassword(c *gin.Context) {
-	token_id := c.MustGet("user_id")
-	token_account_id, _ := token_id.(int64)
-
-	id := c.Params.ByName("account_id")
-	account_id, pasre_err := strconv.ParseInt(id, 0, 64)
-
-	if pasre_err != nil {
+	account_id, consistence_err := checkIdConsistence(c)
+	if consistence_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": pasre_err.Error(),
+			"error": consistence_err.Error(),
 		})
+		return
 	}
 
-	if token_account_id != account_id {
+	var form service.EditPasswordInput
+	bindErr := c.BindJSON(&form)
+
+	if bindErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "token_account_id != account_id",
+			"error": bindErr.Error(),
+		})
+		return
+	}
+
+	err := service.EditPassword(account_id, form)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
 		})
 	} else {
-		var form service.EditPasswordInput
-		bindErr := c.BindJSON(&form)
-
-		if bindErr != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": bindErr.Error(),
-			})
-		} else {
-			err := service.EditPassword(account_id, form)
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{
-					"error": err.Error(),
-				})
-			} else {
-				c.JSON(http.StatusOK, gin.H{
-					"account_id": account_id,
-				})
-			}
-		}
+		c.JSON(http.StatusOK, gin.H{
+			"account_id": account_id,
+		})
 	}
+
+}
+
+// POST /api/account/{account_id}/follow
+func AddFollow(c *gin.Context) {
+	follower_id, consistence_err := checkIdConsistence(c)
+	if consistence_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": consistence_err.Error(),
+		})
+		return
+	}
+
+	var form AddFollowInput
+	bindErr := c.BindJSON(&form)
+	if bindErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": bindErr.Error(),
+		})
+		return
+	}
+
+	err := service.AddFollow(follower_id, form.Followee_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+	})
+}
+
+func GetFollowers(c *gin.Context) {
+	id := c.Params.ByName("account_id")
+	account_id, pasre_err := strconv.ParseInt(id, 0, 64)
+	if pasre_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "account_id not exists",
+		})
+		return
+	}
+
+	followers, err := service.GetFollowers(account_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"follows": followers,
+		})
+	}
+}
+
+func GetFollowing(c *gin.Context) {
+	id := c.Params.ByName("account_id")
+	account_id, pasre_err := strconv.ParseInt(id, 0, 64)
+	if pasre_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "account_id not exists",
+		})
+		return
+	}
+
+	following, err := service.GetFollowing(account_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"followings": following,
+		})
+	}
+}
+
+func GetFollow(c *gin.Context) {
+	id := c.Params.ByName("account_id")
+	account_id, pasre_err := strconv.ParseInt(id, 0, 64)
+	if pasre_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "account_id not exists",
+		})
+		return
+	}
+	id = c.Params.ByName("following_id")
+	following_id, pasre_err_2 := strconv.ParseInt(id, 0, 64)
+	if pasre_err_2 != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "following_id not exists",
+		})
+		return
+	}
+
+	has_follow, err := service.GetFollow(account_id, following_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"following": has_follow,
+		})
+	}
+}
+
+// DELETE /api/account/{account_id}/follow
+func DeleteFollow(c *gin.Context) {
+	follower_id, consistence_err := checkIdConsistence(c)
+	if consistence_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": consistence_err.Error(),
+		})
+		return
+	}
+
+	var form AddFollowInput
+	bindErr := c.BindJSON(&form)
+	if bindErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": bindErr.Error(),
+		})
+		return
+	}
+
+	err := service.DeleteFollow(follower_id, form.Followee_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+	})
 }
