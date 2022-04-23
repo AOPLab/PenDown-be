@@ -41,7 +41,6 @@ func AddNote(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"note_id": note.ID,
 	})
-	return
 }
 
 func AddNoteTag(c *gin.Context) {
@@ -51,6 +50,7 @@ func AddNoteTag(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Note_id not exists",
 		})
+		return
 	}
 
 	id = c.Params.ByName("tag_id")
@@ -59,6 +59,7 @@ func AddNoteTag(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Tag_id not exists",
 		})
+		return
 	}
 
 	user_id := c.MustGet("user_id").(int64)
@@ -74,7 +75,6 @@ func AddNoteTag(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 	})
-	return
 }
 
 func DeleteNoteTag(c *gin.Context) {
@@ -84,6 +84,7 @@ func DeleteNoteTag(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Note_id not exists",
 		})
+		return
 	}
 
 	id = c.Params.ByName("tag_id")
@@ -92,6 +93,7 @@ func DeleteNoteTag(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Tag_id not exists",
 		})
+		return
 	}
 
 	user_id := c.MustGet("user_id").(int64)
@@ -107,5 +109,4 @@ func DeleteNoteTag(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 	})
-	return
 }
