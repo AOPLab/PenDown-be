@@ -14,7 +14,7 @@ type AddNoteInput struct {
 	Description string `json:"description" binding:"required"`
 	Is_template *bool  `json:"is_template" binding:"required"`
 	Course_id   int64  `json:"course_id" binding:"required"`
-	Bean        int    `json:"bean" binding:"required"`
+	Bean        *int    `json:"bean" binding:"required"`
 }
 
 // Create Note and add tags
@@ -30,7 +30,7 @@ func AddNote(c *gin.Context) {
 		return
 	}
 
-	note, err := service.AddNote(user_id, form.Title, form.Description, *form.Is_template, form.Course_id, form.Bean)
+	note, err := service.AddNote(user_id, form.Title, form.Description, *form.Is_template, form.Course_id, *form.Bean)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
