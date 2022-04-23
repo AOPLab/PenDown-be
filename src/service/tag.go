@@ -5,6 +5,11 @@ import (
 	"github.com/AOPLab/PenDown-be/src/persistence"
 )
 
+// type result struct {
+// 	ID       int64
+// 	Tag_name string
+// }
+
 func AddTag(tag_name string) (*model.Tag, error) {
 
 	tag := &model.Tag{
@@ -22,9 +27,8 @@ func AddTag(tag_name string) (*model.Tag, error) {
 func FindTags() ([]*model.Tag, error) {
 
 	var tags []*model.Tag
-	// var tags *model.Tag
 
-	if res := persistence.DB.Find(&tags); res.Error != nil {
+	if res := persistence.DB.Model(&model.Tag{}).Select("ID, Tag_name").Find(&tags); res.Error != nil {
 		return nil, res.Error
 	}
 	return tags, nil

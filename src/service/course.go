@@ -23,3 +23,12 @@ func FindSchoolCourse(school_id int64) ([]*model.Course, error) {
 	}
 	return schoolCourse, nil
 }
+
+func FindCourse(course_id int64) (*model.Course, error) {
+
+	var course model.Course
+	if res := persistence.DB.Where("ID = ?", course_id).First(&course); res.Error != nil {
+		return nil, res.Error
+	}
+	return &course, nil
+}
