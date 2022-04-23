@@ -45,7 +45,7 @@ func GetSchool(c *gin.Context) {
 	school_id, pasre_err := strconv.ParseInt(id, 0, 64)
 	if pasre_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "school_id not exists",
+			"error": "input format error",
 		})
 		return
 	}
