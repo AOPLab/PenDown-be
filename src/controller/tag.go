@@ -13,8 +13,8 @@ type AddTagInput struct {
 }
 
 type TagResult struct {
-	Tag_id   int64
-	Tag_name string
+	Tag_id   int64  `json:"tag_id"`
+	Tag_name string `json:"tag_name"`
 }
 
 // Create Tag

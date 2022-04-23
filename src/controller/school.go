@@ -10,8 +10,8 @@ import (
 )
 
 type SchoolResult struct {
-	School_id   int64
-	School_name string
+	School_id   int64  `json:"school_id"`
+	School_name string `json:"school_name"`
 }
 
 // GET Schools

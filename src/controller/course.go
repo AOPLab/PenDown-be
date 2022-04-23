@@ -10,10 +10,10 @@ import (
 )
 
 type CourseResult struct {
-	School_id   int64
-	Course_id   int64
-	Course_name string
-	Course_no   string
+	School_id   int64  `json:"school_id"`
+	Course_id   int64  `json:"course_id"`
+	Course_name string `json:"course_name"`
+	Course_no   string `json:"course_no"`
 }
 
 // GET School's Course
