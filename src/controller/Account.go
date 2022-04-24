@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	_ "fmt"
 	"net/http"
 	"strconv"
@@ -10,21 +11,39 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func checkIdConsistence(c *gin.Context) (int64, error) {
+	token_account_id := c.MustGet("user_id").(int64)
+
+	id := c.Params.ByName("account_id")
+	account_id, pasre_err := strconv.ParseInt(id, 0, 64)
+
+	if pasre_err != nil {
+		return 0, pasre_err
+	}
+
+	if token_account_id != account_id {
+		return 0, errors.New("token_account_id and account_id inconsistence")
+	} else {
+		return account_id, nil
+	}
+}
+
 // GET /api/account/{account_id}/profile
 func GetPublicProfile(c *gin.Context) {
 	id := c.Params.ByName("account_id")
 	account_id, pasre_err := strconv.ParseInt(id, 0, 64)
 	if pasre_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "account_id not exists",
+			"error": "account id format error",
 		})
+		return
 	}
 	user, followers_num, following_num, note_num, err := service.FindPublicProfile(account_id)
 
 	if err != nil {
 		if err.Error() == "record not found" {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "account_id not exists",
+				"error": "account id format error",
 			})
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -100,41 +119,33 @@ func EditProfile(c *gin.Context) {
 
 // PUT /api/account/{account_id}/pass_hash
 func EditPassword(c *gin.Context) {
-	token_id := c.MustGet("user_id")
-	token_account_id, _ := token_id.(int64)
-
-	id := c.Params.ByName("account_id")
-	account_id, pasre_err := strconv.ParseInt(id, 0, 64)
-
-	if pasre_err != nil {
+	account_id, consistence_err := checkIdConsistence(c)
+	if consistence_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": pasre_err.Error(),
+			"error": consistence_err.Error(),
 		})
+		return
 	}
 
-	if token_account_id != account_id {
+	var form service.EditPasswordInput
+	bindErr := c.BindJSON(&form)
+
+	if bindErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "token_account_id != account_id",
+			"error": bindErr.Error(),
+		})
+		return
+	}
+
+	err := service.EditPassword(account_id, form)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
 		})
 	} else {
-		var form service.EditPasswordInput
-		bindErr := c.BindJSON(&form)
-
-		if bindErr != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": bindErr.Error(),
-			})
-		} else {
-			err := service.EditPassword(account_id, form)
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{
-					"error": err.Error(),
-				})
-			} else {
-				c.JSON(http.StatusOK, gin.H{
-					"account_id": account_id,
-				})
-			}
-		}
+		c.JSON(http.StatusOK, gin.H{
+			"account_id": account_id,
+		})
 	}
+
 }
