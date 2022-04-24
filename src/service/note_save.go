@@ -17,3 +17,17 @@ func SavedNote(user_id int64, note_id int64) (bool, error) {
 	}
 	return true, nil
 }
+
+func SaveNote(user_id int64, note_id int64) error {
+	save := &model.Saved{
+		User_id: user_id,
+		Note_id: note_id,
+	}
+
+	db_err := persistence.DB.Model(&model.Saved{}).Create(&save).Error
+	if db_err != nil {
+		return db_err
+	} else {
+		return nil
+	}
+}

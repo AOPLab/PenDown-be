@@ -49,7 +49,8 @@ func Routes(r *gin.Engine) {
 		authorized.POST("/notes/:note_id/goodnote", controller.UploadGoodnote)
 		authorized.POST("/notes/:note_id/pdf", controller.UploadPdf)
 		authorized.POST("/notes/:note_id/preview", controller.UploadPreview)
-		authorized.POST("/notes/:note_id/save", controller.IsNoteSaved)
+		authorized.GET("/notes/:note_id/save", controller.IsNoteSaved)
+		authorized.POST("/notes/:note_id/save", controller.SaveNote)
 
 	}
 }
