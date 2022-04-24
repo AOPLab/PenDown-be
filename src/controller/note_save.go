@@ -32,9 +32,6 @@ func IsNoteSaved(c *gin.Context) {
 		return
 	}
 
-	// Token 過期？？？
-	// 筆記不存在？？
-
 	c.JSON(http.StatusOK, gin.H{
 		"is_saved": saved,
 	})
@@ -66,5 +63,32 @@ func SaveNote(c *gin.Context) {
 		"success": true,
 	})
 
+	return
+}
+
+// Cancel Save
+func DeleteSave(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+	id := c.Params.ByName("note_id")
+	note_id, parse_err := strconv.ParseInt(id, 0, 64)
+
+	if parse_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Input format error",
+		})
+		return
+	}
+
+	err := service.DeleteSave(user_id, note_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+	})
 	return
 }
