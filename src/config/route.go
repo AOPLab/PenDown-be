@@ -19,6 +19,13 @@ func Routes(r *gin.Engine) {
 		public.GET("/account/:account_id/followers", controller.GetFollowers)
 		public.GET("/account/:account_id/followings", controller.GetFollowing)
 		public.GET("/account/:account_id/following/:following_id", controller.GetFollow)
+		public.GET("/tag", controller.GetTags)
+		public.POST("/tag", controller.AddTag)
+		public.GET("/school", controller.GetSchools)
+		public.GET("/school/:school_id", controller.GetSchool)
+		public.GET("/school/:school_id/course", controller.GetSchoolCourse)
+		public.GET("/course/:course_id", controller.GetCourse)
+
 	}
 
 	// protected member router
