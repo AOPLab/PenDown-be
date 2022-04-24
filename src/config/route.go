@@ -16,6 +16,9 @@ func Routes(r *gin.Engine) {
 		public.POST("/login", controller.Login)
 		public.POST("/login/google", controller.GoogleLogin)
 		public.GET("/account/:account_id/profile", controller.GetPublicProfile)
+		public.GET("/account/:account_id/followers", controller.GetFollowers)
+		public.GET("/account/:account_id/followings", controller.GetFollowing)
+		public.GET("/account/:account_id/following/:following_id", controller.GetFollow)
 	}
 
 	// protected member router
@@ -30,10 +33,7 @@ func Routes(r *gin.Engine) {
 		authorized.GET("account", controller.GetPrivateProfile)
 		authorized.PATCH("account", controller.EditProfile)
 		authorized.PUT("account/:account_id/pass_hash", controller.EditPassword)
-		authorized.GET("/account/:account_id/followers", controller.GetFollowers)
-		authorized.GET("/account/:account_id/followings", controller.GetFollowing)
 		authorized.POST("/account/:account_id/follow", controller.AddFollow)
-		authorized.GET("/account/:account_id/following/:following_id", controller.GetFollow)
 		authorized.DELETE("/account/:account_id/follow", controller.DeleteFollow)
 		authorized.POST("/notes", controller.AddNote)
 		authorized.POST("/notes/:note_id/tags/:tag_id", controller.AddNoteTag)

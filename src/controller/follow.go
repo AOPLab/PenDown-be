@@ -50,7 +50,7 @@ func GetFollowers(c *gin.Context) {
 	account_id, pasre_err := strconv.ParseInt(id, 0, 64)
 	if pasre_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "account_id not exists",
+			"error": "account id format error",
 		})
 		return
 	}
@@ -62,7 +62,7 @@ func GetFollowers(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"follows": followers,
+			"followers": followers,
 		})
 	}
 }
@@ -72,7 +72,7 @@ func GetFollowing(c *gin.Context) {
 	account_id, pasre_err := strconv.ParseInt(id, 0, 64)
 	if pasre_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "account_id not exists",
+			"error": "account id format error",
 		})
 		return
 	}
@@ -94,7 +94,7 @@ func GetFollow(c *gin.Context) {
 	account_id, pasre_err := strconv.ParseInt(id, 0, 64)
 	if pasre_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "account_id not exists",
+			"error": "account id format error",
 		})
 		return
 	}

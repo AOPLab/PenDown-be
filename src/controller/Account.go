@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
 func checkIdConsistence(c *gin.Context) (int64, error) {
 	token_account_id := c.MustGet("user_id").(int64)
 
@@ -35,7 +34,7 @@ func GetPublicProfile(c *gin.Context) {
 	account_id, pasre_err := strconv.ParseInt(id, 0, 64)
 	if pasre_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "account_id not exists",
+			"error": "account id format error",
 		})
 		return
 	}
@@ -44,7 +43,7 @@ func GetPublicProfile(c *gin.Context) {
 	if err != nil {
 		if err.Error() == "record not found" {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "account_id not exists",
+				"error": "account id format error",
 			})
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{
