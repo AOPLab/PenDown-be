@@ -13,7 +13,7 @@ func Routes(r *gin.Engine) {
 	public := r.Group("api")
 	{
 		public.POST("/account", controller.Register)
-		public.POST("/login", controller.Logi	n)
+		public.POST("/login", controller.Login)
 		public.POST("/login/google", controller.GoogleLogin)
 	}
 
