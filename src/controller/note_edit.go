@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Save Note
+// Edit Note
 func EditNote(c *gin.Context) {
 	user_id := c.MustGet("user_id").(int64)
 	id := c.Params.ByName("note_id")
@@ -22,17 +22,26 @@ func EditNote(c *gin.Context) {
 		return
 	}
 
-	err := service.DeleteNote(user_id, note_id)
-	if err != nil {
+	var form service.EditNoteInput
+	bindErr := c.BindJSON(&form)
+
+	if bindErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"error": bindErr.Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-	})
+	err := service.EditNote(user_id, note_id, form)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+		})
+	}
 
 	return
 }

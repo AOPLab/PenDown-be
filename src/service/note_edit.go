@@ -7,15 +7,26 @@ import (
 	"github.com/AOPLab/PenDown-be/src/persistence"
 )
 
-func EditNote(user_id int64, note_id int64) error {
-	save := &model.Saved{
-		User_id: user_id,
-		Note_id: note_id,
+type EditNoteInput struct {
+	Title       string `json:"title" binding:"required"`
+	Description string `json:"description" binding:"required"`
+	Course_id   int64  `json:"course_id" binding:"required"`
+	Bean        int    `json:"bean" binding:"required"`
+	Is_template bool   `json:"is_template" binding:"required"`
+}
+
+func EditNote(user_id int64, note_id int64, form EditNoteInput) error {
+	myNote, myNote_err := GetMyNote(user_id, note_id)
+	if myNote_err != nil {
+		return myNote_err
+	}
+	if !myNote {
+		return errors.New("Note doesn't exist.")
 	}
 
-	db_err := persistence.DB.Model(&model.Saved{}).Create(&save).Error
-	if db_err != nil {
-		return db_err
+	err := persistence.DB.Model(&model.Note{}).Where("ID = ?", note_id).Updates(map[string]interface{}{"Title": form.Title, "Description": form.Description, "Course_id": form.Course_id, "Bean": form.Bean, "Is_template": form.Is_template}).Error
+	if err != nil {
+		return err
 	} else {
 		return nil
 	}
