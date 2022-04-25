@@ -52,6 +52,8 @@ func Routes(r *gin.Engine) {
 		authorized.GET("/notes/:note_id/save", controller.IsNoteSaved)
 		authorized.POST("/notes/:note_id/save", controller.SaveNote)
 		authorized.DELETE("/notes/:note_id/save", controller.DeleteSave)
+		authorized.PATCH("/notes/:note_id", controller.EditNote)
+		authorized.DELETE("/notes/:note_id", controller.DeleteNote)
 
 	}
 }
