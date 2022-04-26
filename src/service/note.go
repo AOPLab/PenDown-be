@@ -7,6 +7,15 @@ import (
 	"github.com/AOPLab/PenDown-be/src/persistence"
 )
 
+func GetNoteTag(note_id int64) (*[]model.NoteTag, error) {
+	var noteTags []model.NoteTag
+	db_err := persistence.DB.Where(map[string]interface{}{"note_id": note_id}).Find(&noteTags).Error
+	if db_err != nil {
+		return nil, db_err
+	}
+	return &noteTags, nil
+}
+
 func AddNoteTag(user_id int64, note_id int64, tag_id int64) error {
 	_, note_err := GetNoteById(user_id, note_id)
 	if note_err != nil {
