@@ -9,7 +9,7 @@ import (
 
 func GetNoteTag(note_id int64) (*[]model.NoteTag, error) {
 	var noteTags []model.NoteTag
-	db_err := persistence.DB.Where(map[string]interface{}{"note_id": note_id}).Find(&noteTags).Error
+	db_err := persistence.DB.Preload("Tag").Where(map[string]interface{}{"note_id": note_id}).Find(&noteTags).Error
 	if db_err != nil {
 		return nil, db_err
 	}

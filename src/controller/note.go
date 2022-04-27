@@ -18,6 +18,11 @@ type AddNoteInput struct {
 	Bean        *int   `json:"bean" binding:"required"`
 }
 
+type TagInfo struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+}
+
 // Create Note and add tags
 func AddNote(c *gin.Context) {
 	var form AddNoteInput
@@ -44,7 +49,6 @@ func AddNote(c *gin.Context) {
 	})
 }
 
-// FIXME: There are redundant keys in return object
 func GetNoteTag(c *gin.Context) {
 	id := c.Params.ByName("note_id")
 	note_id, parse_err := strconv.ParseInt(id, 0, 64)
@@ -63,22 +67,17 @@ func GetNoteTag(c *gin.Context) {
 		return
 	}
 
-	var tagsId []int64
+	var tags []*TagInfo
 	for _, noteTag := range *noteTags {
 		fmt.Println(noteTag.Tag_id)
-		tagsId = append(tagsId, noteTag.Tag_id)
-	}
-
-	tags, tag_err := service.GetTagsByBatch(&tagsId)
-	if tag_err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": tag_err.Error(),
-		})
-		return
+		var tag TagInfo
+		tag.ID = noteTag.Tag.ID
+		tag.Name = noteTag.Tag.Tag_name
+		tags = append(tags, &tag)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"tags": *tags,
+		"tags": tags,
 	})
 }
 
