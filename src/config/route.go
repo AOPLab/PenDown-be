@@ -43,6 +43,11 @@ func Routes(r *gin.Engine) {
 		public_course.GET("/:course_id", controller.GetCourse)
 	}
 
+	public_file := r.Group("/api/file")
+	{
+		public_file.GET("/preview", controller.GetPreviewFile)
+	}
+
 	// protected member router
 	authorized := r.Group("/api")
 	authorized.Use(auth.AuthRequired)
@@ -74,5 +79,11 @@ func Routes(r *gin.Engine) {
 		authorized_note.POST("/:note_id/goodnote", controller.UploadGoodnote)
 		authorized_note.POST("/:note_id/pdf", controller.UploadPdf)
 		authorized_note.POST("/:note_id/preview", controller.UploadPreview)
+	}
+
+	authorized_file := r.Group("/api/file")
+	authorized_file.Use(auth.AuthRequired)
+	{
+		authorized_file.GET("/preview", controller.GetPreviewFile)
 	}
 }

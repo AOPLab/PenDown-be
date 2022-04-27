@@ -349,3 +349,43 @@ func UploadPreview(c *gin.Context) {
 	})
 	return
 }
+
+func GetPreviewFile(c *gin.Context) {
+	filename := c.Query("filename")
+	course_id := c.Query("course_id")
+	school_id := c.Query("school_id")
+	path := school_id + "/" + course_id + "/" + filename
+
+	// TODO: Check file is image
+
+	file_url, sign_err := service.SignedFileUrl(path)
+	if sign_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": sign_err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"file_url": file_url,
+	})
+}
+
+func GetNoteFile(c *gin.Context) {
+	filename := c.Query("filename")
+	course_id := c.Query("course_id")
+	school_id := c.Query("school_id")
+	path := school_id + "/" + course_id + "/" + filename
+
+	// TODO: check user can download file
+
+	file_url, sign_err := service.SignedFileUrl(path)
+	if sign_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": sign_err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"file_url": file_url,
+	})
+}
