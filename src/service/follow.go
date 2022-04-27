@@ -44,20 +44,16 @@ func GetFollow(follower_id int64, followee_id int64) (bool, error) {
 func GetFollowers(followee_id int64) ([]*Follow_Member_Detail, error) {
 	var follows []model.Follow
 	var follow_members []*Follow_Member_Detail
-	err := persistence.DB.Where("Followee_id = ?", followee_id).Find(&follows).Error
+	err := persistence.DB.Where("Followee_id = ?", followee_id).Preload("Follower").Find(&follows).Error
 	if err != nil {
 		return nil, err
 	} else {
 		for _, v := range follows {
-			follower_id := v.Follower_id
-			follower, follower_err := findUserByAccountID(follower_id)
-			if follower_err == nil {
-				var follow_member Follow_Member_Detail
-				follow_member.Account_id = follower_id
-				follow_member.Full_name = follower.Full_name
-				follow_member.Username = follower.Username
-				follow_members = append(follow_members, &follow_member)
-			}
+			var follow_member Follow_Member_Detail
+			follow_member.Account_id = v.Follower.ID
+			follow_member.Full_name = v.Follower.Full_name
+			follow_member.Username = v.Follower.Username
+			follow_members = append(follow_members, &follow_member)
 		}
 	}
 	return follow_members, nil
@@ -66,20 +62,16 @@ func GetFollowers(followee_id int64) ([]*Follow_Member_Detail, error) {
 func GetFollowing(follower_id int64) ([]*Follow_Member_Detail, error) {
 	var follows []model.Follow
 	var follow_members []*Follow_Member_Detail
-	err := persistence.DB.Where("Follower_id = ?", follower_id).Find(&follows).Error
+	err := persistence.DB.Where("Follower_id = ?", follower_id).Preload("Followee").Find(&follows).Error
 	if err != nil {
 		return nil, err
 	} else {
 		for _, v := range follows {
-			followee_id := v.Followee_id
-			followee, followee_err := findUserByAccountID(followee_id)
-			if followee_err == nil {
-				var follow_member Follow_Member_Detail
-				follow_member.Account_id = followee_id
-				follow_member.Full_name = followee.Full_name
-				follow_member.Username = followee.Username
-				follow_members = append(follow_members, &follow_member)
-			}
+			var follow_member Follow_Member_Detail
+			follow_member.Account_id = v.Followee.ID
+			follow_member.Full_name = v.Followee.Full_name
+			follow_member.Username = v.Followee.Username
+			follow_members = append(follow_members, &follow_member)
 		}
 	}
 	return follow_members, nil
