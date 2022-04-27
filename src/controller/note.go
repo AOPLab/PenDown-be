@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -43,7 +44,7 @@ func AddNote(c *gin.Context) {
 	})
 }
 
-// TODO: get note tags
+// FIXME: There are redundant keys in return object
 func GetNoteTag(c *gin.Context) {
 	id := c.Params.ByName("note_id")
 	note_id, parse_err := strconv.ParseInt(id, 0, 64)
@@ -62,8 +63,22 @@ func GetNoteTag(c *gin.Context) {
 		return
 	}
 
+	var tagsId []int64
+	for _, noteTag := range *noteTags {
+		fmt.Println(noteTag.Tag_id)
+		tagsId = append(tagsId, noteTag.Tag_id)
+	}
+
+	tags, tag_err := service.GetTagsByBatch(&tagsId)
+	if tag_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": tag_err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"success": *noteTags,
+		"tags": *tags,
 	})
 }
 

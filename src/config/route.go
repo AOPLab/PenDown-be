@@ -31,6 +31,11 @@ func Routes(r *gin.Engine) {
 		public_tag.POST("", controller.AddTag)
 	}
 
+	public_note := r.Group("api/notes")
+	{
+		public_note.GET("/:note_id/tags", controller.GetNoteTag)
+	}
+
 	public_school := r.Group("api/school")
 	{
 		public_school.GET("", controller.GetSchools)
