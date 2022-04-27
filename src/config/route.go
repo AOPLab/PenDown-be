@@ -84,6 +84,6 @@ func Routes(r *gin.Engine) {
 	authorized_file := r.Group("/api/file")
 	authorized_file.Use(auth.AuthRequired)
 	{
-		authorized_file.GET("/preview", controller.GetPreviewFile)
+		authorized_file.GET("/", controller.GetPreviewFile)
 	}
 }

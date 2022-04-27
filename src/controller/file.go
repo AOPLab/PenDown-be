@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"fmt"
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/AOPLab/PenDown-be/src/service"
@@ -352,11 +354,34 @@ func UploadPreview(c *gin.Context) {
 
 func GetPreviewFile(c *gin.Context) {
 	filename := c.Query("filename")
-	course_id := c.Query("course_id")
-	school_id := c.Query("school_id")
-	path := school_id + "/" + course_id + "/" + filename
+	id := c.Query("note_id")
+	note_id, parse_err := strconv.ParseInt(id, 0, 64)
+	if parse_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "NoteIdPareseError",
+		})
+		return
+	}
 
-	// TODO: Check file is image
+	note, note_err := service.GetNoteByIdWithCourse(note_id)
+	if note_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": note_err.Error(),
+		})
+		return
+	}
+
+	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
+	fmt.Print(note.Course)
+
+	// Check file is image
+	contain := strings.Contains(filename, "jpg")
+	if contain == false {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "FileNameError",
+		})
+		return
+	}
 
 	file_url, sign_err := service.SignedFileUrl(path)
 	if sign_err != nil {
@@ -371,12 +396,34 @@ func GetPreviewFile(c *gin.Context) {
 }
 
 func GetNoteFile(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
 	filename := c.Query("filename")
-	course_id := c.Query("course_id")
-	school_id := c.Query("school_id")
-	path := school_id + "/" + course_id + "/" + filename
+	id := c.Query("note_id")
+	note_id, parse_err := strconv.ParseInt(id, 0, 64)
+	if parse_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "NoteIdPareseError",
+		})
+		return
+	}
+
+	note, note_err := service.GetNoteByIdWithCourse(note_id)
+	if note_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": note_err.Error(),
+		})
+		return
+	}
+
+	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
 
 	// TODO: check user can download file
+	if note.User_id != user_id {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "NoAuthorization",
+		})
+		return
+	}
 
 	file_url, sign_err := service.SignedFileUrl(path)
 	if sign_err != nil {
