@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/AOPLab/PenDown-be/src/auth"
 	"github.com/AOPLab/PenDown-be/src/service"
@@ -22,6 +23,29 @@ type AddNoteInput struct {
 type TagInfo struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`
+}
+
+type NoteOutput struct {
+	ID                  int64     `json:"note_id"`
+	Account_id          int64     `json:"account_id"`
+	Username            string    `json:"username"`
+	Title               string    `json:"title"`
+	Description         string    `json:"description"`
+	View_cnt            int64     `json:"view_cnt"`
+	Saved_cnt           int64     `json:"saved_cnt"`
+	Course_id           int64     `json:"course_id"`
+	Course_name         string    `json:"course_name"`
+	Course_no           string    `json:"course_no"`
+	School_id           int64     `json:"school_id"`
+	School_name         string    `json:"school_name"`
+	Is_template         bool      `json:"is_template"`
+	Note_type           string    `json:"note_type"`
+	Bean                int       `json:"bean"`
+	Pdf_filename        string    `json:"pdf_filename"`
+	Preview_filename    string    `json:"preview_filename"`
+	Goodnotes_filename  string    `json:"goodnotes_filename"`
+	Notability_filename string    `json:"notability_filename"`
+	CreatedAt           time.Time `json:"created_at"`
 }
 
 // Create Note and add tags
@@ -150,8 +174,6 @@ func DeleteNoteTag(c *gin.Context) {
 	})
 }
 
-// TODO: GET NOTE
-// CHECK USER DOWNLOAD AUTHENTICATION
 func GetNote(c *gin.Context) {
 	id := c.Params.ByName("note_id")
 
@@ -166,42 +188,64 @@ func GetNote(c *gin.Context) {
 	if c.GetHeader("Authorization") != "" {
 		// Get note with filename
 		auth.AuthRequired(c)
-	} else {
-		// return note without filename directly
-		note, note_err := service.GetNoteById(note_id)
-		if note_err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": note_err.Error(),
-			})
+		if c.Writer.Status() == 401 {
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"note": note,
-		})
-
 	}
-}
 
-// response example
-// {
-//     "note_id":
-//     "username":
-//     "account_id":
-//     "title":
-//     "description":
-//     "course_name":
-//     "course_id":
-//     "course_no":
-//     "school_name":
-//     "school_id":
-//     "note_type":
-//     "is_template":
-//     "bean":
-//     "preview_filename":
-//     "pdf_filename":
-//     "notability_filename":
-//     "goodnote_filename":
-//     "view_cnt":
-//     "saved_cnt":
-//     "created_at":
-// }
+	note, note_err := service.GetNoteById(note_id)
+	if note_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": note_err.Error(),
+		})
+		return
+	}
+
+	note_output := &NoteOutput{
+		ID:               note.ID,
+		Username:         note.User.Username,
+		Account_id:       note.User_id,
+		Title:            note.Title,
+		Description:      note.Description,
+		Course_name:      note.Course.Course_name,
+		Course_id:        note.Course_id,
+		Course_no:        note.Course.Course_no,
+		School_name:      note.Course.School.School_name,
+		School_id:        note.Course.School_id,
+		Is_template:      note.Is_template,
+		Bean:             note.Bean,
+		Preview_filename: note.Preview_filename,
+		View_cnt:         note.View_cnt,
+		CreatedAt:        note.CreatedAt,
+	}
+
+	// add note type
+	if note.Notability_filename != "" {
+		note_output.Note_type = "Notability"
+	} else if note.Goodnotes_filename != "" {
+		note_output.Note_type = "Goodnotes"
+	}
+
+	// calculate saved cnt
+	cnt, save_err := service.GetNoteSavedCnt(note.ID)
+	if save_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": note_err.Error(),
+		})
+		return
+	}
+	note_output.Saved_cnt = cnt
+
+	if c.GetHeader("Authorization") != "" {
+		// Get note with filename
+		user_id := c.MustGet("user_id").(int64)
+		fmt.Print(user_id)
+
+		// TODO: Check bought or not
+		note_output.Pdf_filename = note.Pdf_filename
+		note_output.Notability_filename = note.Notability_filename
+		note_output.Goodnotes_filename = note.Goodnotes_filename
+	}
+
+	c.JSON(http.StatusOK, note_output)
+}

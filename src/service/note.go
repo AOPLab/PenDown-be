@@ -141,3 +141,12 @@ func CheckUserBuyNote(user_id int64, note_id int64) bool {
 	}
 	return true
 }
+
+func GetNoteSavedCnt(note_id int64) (int64, error) {
+	var saved_cnt int64
+	err := persistence.DB.Model(&model.Saved{}).Where("note_id = ?", note_id).Count(&saved_cnt).Error
+	if err != nil {
+		return 0, err
+	}
+	return saved_cnt, nil
+}

@@ -33,8 +33,8 @@ func Routes(r *gin.Engine) {
 
 	public_note := r.Group("api/notes")
 	{
-		public_note.GET("/:note_id/tags", controller.GetNoteTag)
 		public_note.GET("/:note_id", controller.GetNote)
+		public_note.GET("/:note_id/tags", controller.GetNoteTag)
 	}
 
 	public_school := r.Group("api/school")
