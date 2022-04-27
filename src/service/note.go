@@ -17,7 +17,7 @@ func GetNoteTag(note_id int64) (*[]model.NoteTag, error) {
 }
 
 func AddNoteTag(user_id int64, note_id int64, tag_id int64) error {
-	_, note_err := GetNoteById(user_id, note_id)
+	_, note_err := GetUserNoteById(user_id, note_id)
 	if note_err != nil {
 		return errors.New("NoteNotExist")
 	}
@@ -34,7 +34,7 @@ func AddNoteTag(user_id int64, note_id int64, tag_id int64) error {
 }
 
 func DeleteNoteTag(user_id int64, note_id int64, tag_id int64) error {
-	_, note_err := GetNoteById(user_id, note_id)
+	_, note_err := GetUserNoteById(user_id, note_id)
 	if note_err != nil {
 		return errors.New("NoteNotExist")
 	}
@@ -65,12 +65,24 @@ func AddNote(user_id int64, title string, description string, is_template bool, 
 	return note, nil
 }
 
-func GetNoteById(user_id int64, note_id int64) (*model.Note, error) {
+func GetUserNoteById(user_id int64, note_id int64) (*model.Note, error) {
 	note := &model.Note{
 		ID:      note_id,
 		User_id: user_id,
 	}
 	db_err := persistence.DB.Where(&note).First(&note).Error
+	if db_err != nil {
+		return nil, db_err
+	}
+
+	return note, nil
+}
+
+func GetNoteById(note_id int64) (*model.Note, error) {
+	note := &model.Note{
+		ID: note_id,
+	}
+	db_err := persistence.DB.Preload("User").Preload("Course").Preload("Course.School").Where(&note).First(&note).Error
 	if db_err != nil {
 		return nil, db_err
 	}
@@ -116,4 +128,16 @@ func UpdatePreviewFilename(note_id int64, preview_filename string) error {
 	}
 
 	return nil
+}
+
+func CheckUserBuyNote(user_id int64, note_id int64) bool {
+	download := &model.Download{
+		User_id: user_id,
+		Note_id: note_id,
+	}
+	db_err := persistence.DB.Where(&download).First(&download).Error
+	if db_err != nil {
+		return false
+	}
+	return true
 }

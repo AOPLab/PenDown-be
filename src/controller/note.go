@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/AOPLab/PenDown-be/src/auth"
 	"github.com/AOPLab/PenDown-be/src/service"
 
 	"github.com/gin-gonic/gin"
@@ -153,17 +154,32 @@ func DeleteNoteTag(c *gin.Context) {
 // CHECK USER DOWNLOAD AUTHENTICATION
 func GetNote(c *gin.Context) {
 	id := c.Params.ByName("note_id")
+
 	note_id, parse_err := strconv.ParseInt(id, 0, 64)
 	if parse_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Note_id not exists",
+			"error": "NoteIdParseError",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"note_id": note_id,
-	})
+	if c.GetHeader("Authorization") != "" {
+		// Get note with filename
+		auth.AuthRequired(c)
+	} else {
+		// return note without filename directly
+		note, note_err := service.GetNoteById(note_id)
+		if note_err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": note_err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"note": note,
+		})
+
+	}
 }
 
 // response example
@@ -181,17 +197,11 @@ func GetNote(c *gin.Context) {
 //     "note_type":
 //     "is_template":
 //     "bean":
-//     "preview_filename": # filename 前端拿 file_name 在打另外一支 API 去拿網址，再拿網址去開資料
+//     "preview_filename":
 //     "pdf_filename":
 //     "notability_filename":
 //     "goodnote_filename":
 //     "view_cnt":
 //     "saved_cnt":
 //     "created_at":
-//     "tags": [
-//         {
-//             "tag_id": ""
-//             "tag_name": ""
-//         }
-//     ]
 // }
