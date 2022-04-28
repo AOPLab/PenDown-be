@@ -241,12 +241,13 @@ func GetNote(c *gin.Context) {
 	if c.GetHeader("Authorization") != "" {
 		// Get note with filename
 		user_id := c.MustGet("user_id").(int64)
-		fmt.Print(user_id)
 
-		// TODO: Check bought or not
-		note_output.Pdf_filename = note.Pdf_filename
-		note_output.Notability_filename = note.Notability_filename
-		note_output.Goodnotes_filename = note.Goodnotes_filename
+		// Check bought or not
+		if user_id == note.User_id || service.CheckUserBuyNote(user_id, note.ID) {
+			note_output.Pdf_filename = note.Pdf_filename
+			note_output.Notability_filename = note.Notability_filename
+			note_output.Goodnotes_filename = note.Goodnotes_filename
+		}
 	}
 
 	c.JSON(http.StatusOK, note_output)
