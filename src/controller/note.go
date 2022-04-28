@@ -220,7 +220,9 @@ func GetNote(c *gin.Context) {
 	}
 
 	// add note type
-	if note.Notability_filename != "" {
+	if note.Notability_filename != "" && note.Goodnotes_filename != "" {
+		note_output.Note_type = "All"
+	} else if note.Notability_filename != "" {
 		note_output.Note_type = "Notability"
 	} else if note.Goodnotes_filename != "" {
 		note_output.Note_type = "Goodnotes"
