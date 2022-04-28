@@ -297,7 +297,7 @@ func UploadPreview(c *gin.Context) {
 	}
 
 	// Check Content-Type
-	if file.Header.Get("Content-Type") != "image/png" {
+	if file.Header.Get("Content-Type") != "image/jpeg" {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "FileTypeError",
 		})
