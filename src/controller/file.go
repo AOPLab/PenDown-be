@@ -417,8 +417,8 @@ func GetNoteFile(c *gin.Context) {
 
 	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
 
-	// TODO: check user can download file
-	if note.User_id != user_id {
+	// check user can download file
+	if note.User_id != user_id || !service.CheckUserBuyNote(user_id, note.ID) {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": "NoAuthorization",
 		})
