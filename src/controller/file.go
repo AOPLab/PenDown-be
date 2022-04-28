@@ -324,7 +324,7 @@ func UploadPreview(c *gin.Context) {
 
 	// Generate preview file path
 	time := strconv.FormatInt(time.Now().Unix(), 10)
-	filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".png"
+	filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".jpg"
 	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
 
 	// Upload preview image file
