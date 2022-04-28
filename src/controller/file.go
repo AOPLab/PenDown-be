@@ -62,7 +62,7 @@ func UploadNotability(c *gin.Context) {
 	}
 
 	// Get Note
-	note, note_err := service.GetNoteById(user_id, note_id)
+	note, note_err := service.GetUserNoteById(user_id, note_id)
 	if note_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": note_err.Error(),
@@ -138,7 +138,7 @@ func UploadGoodnote(c *gin.Context) {
 	}
 
 	// Get Note
-	note, note_err := service.GetNoteById(user_id, note_id)
+	note, note_err := service.GetUserNoteById(user_id, note_id)
 	if note_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": note_err.Error(),
@@ -215,7 +215,7 @@ func UploadPdf(c *gin.Context) {
 	defer blobFile.Close()
 
 	// Get Note
-	note, note_err := service.GetNoteById(user_id, note_id)
+	note, note_err := service.GetUserNoteById(user_id, note_id)
 	if note_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": note_err.Error(),
@@ -312,7 +312,7 @@ func UploadPreview(c *gin.Context) {
 	defer blobFile.Close()
 
 	// Get Note
-	note, note_err := service.GetNoteById(user_id, note_id)
+	note, note_err := service.GetUserNoteById(user_id, note_id)
 	if note_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": note_err.Error(),
