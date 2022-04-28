@@ -7,8 +7,17 @@ import (
 	"github.com/AOPLab/PenDown-be/src/persistence"
 )
 
+func GetNoteTag(note_id int64) (*[]model.NoteTag, error) {
+	var noteTags []model.NoteTag
+	db_err := persistence.DB.Preload("Tag").Where(map[string]interface{}{"note_id": note_id}).Find(&noteTags).Error
+	if db_err != nil {
+		return nil, db_err
+	}
+	return &noteTags, nil
+}
+
 func AddNoteTag(user_id int64, note_id int64, tag_id int64) error {
-	_, note_err := GetNoteById(user_id, note_id)
+	_, note_err := GetUserNoteById(user_id, note_id)
 	if note_err != nil {
 		return errors.New("NoteNotExist")
 	}
@@ -25,7 +34,7 @@ func AddNoteTag(user_id int64, note_id int64, tag_id int64) error {
 }
 
 func DeleteNoteTag(user_id int64, note_id int64, tag_id int64) error {
-	_, note_err := GetNoteById(user_id, note_id)
+	_, note_err := GetUserNoteById(user_id, note_id)
 	if note_err != nil {
 		return errors.New("NoteNotExist")
 	}
@@ -68,12 +77,24 @@ func GetNoteByIdWithCourse(note_id int64) (*model.Note, error) {
 	return note, nil
 }
 
-func GetNoteById(user_id int64, note_id int64) (*model.Note, error) {
+func GetUserNoteById(user_id int64, note_id int64) (*model.Note, error) {
 	note := &model.Note{
 		ID:      note_id,
 		User_id: user_id,
 	}
 	db_err := persistence.DB.Preload("Course").Where(&note).First(&note).Error
+	if db_err != nil {
+		return nil, db_err
+	}
+
+	return note, nil
+}
+
+func GetNoteById(note_id int64) (*model.Note, error) {
+	note := &model.Note{
+		ID: note_id,
+	}
+	db_err := persistence.DB.Preload("User").Preload("Course").Preload("Course.School").Where(&note).First(&note).Error
 	if db_err != nil {
 		return nil, db_err
 	}
@@ -119,4 +140,25 @@ func UpdatePreviewFilename(note_id int64, preview_filename string) error {
 	}
 
 	return nil
+}
+
+func CheckUserBuyNote(user_id int64, note_id int64) bool {
+	download := &model.Download{
+		User_id: user_id,
+		Note_id: note_id,
+	}
+	db_err := persistence.DB.Where(&download).First(&download).Error
+	if db_err != nil {
+		return false
+	}
+	return true
+}
+
+func GetNoteSavedCnt(note_id int64) (int64, error) {
+	var saved_cnt int64
+	err := persistence.DB.Model(&model.Saved{}).Where("note_id = ?", note_id).Count(&saved_cnt).Error
+	if err != nil {
+		return 0, err
+	}
+	return saved_cnt, nil
 }
