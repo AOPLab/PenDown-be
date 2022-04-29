@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"math"
 
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
@@ -161,4 +162,60 @@ func GetNoteSavedCnt(note_id int64) (int64, error) {
 		return 0, err
 	}
 	return saved_cnt, nil
+}
+
+func GetNote(filter string, offset int64) ([]model.Note, int64, error) {
+	var count int64
+	var size = 6
+	persistence.DB.Model(&model.Note{}).Count(&count)
+	total_cnt := int64(math.Ceil(float64(count) / float64(size)))
+	if offset >= total_cnt {
+		return nil, 0, errors.New("offset out of range")
+	}
+
+	var notes []model.Note
+	switch filter {
+	case "popular":
+		results := persistence.DB.Order("view_cnt desc").Limit(size).Offset(int(offset) * size).Preload("User").Preload("Course").Find(&notes)
+		if results.Error != nil {
+			return nil, total_cnt, results.Error
+		}
+		return notes, total_cnt, nil
+	case "recent":
+		results := persistence.DB.Order("created_at desc").Limit(size).Offset(int(offset) * size).Preload("User").Preload("Course").Find(&notes)
+		if results.Error != nil {
+			return nil, total_cnt, results.Error
+		}
+		return notes, total_cnt, nil
+	default:
+		return nil, total_cnt, nil
+	}
+}
+
+func GetNoteByUser(user_id int64, filter string, offset int64) ([]model.Note, int64, error) {
+	var count int64
+	var size = 6
+	persistence.DB.Model(&model.Note{}).Where("user_id = ?", user_id).Count(&count)
+	total_cnt := int64(math.Ceil(float64(count) / float64(size)))
+	if offset >= total_cnt {
+		return nil, 0, errors.New("offset out of range")
+	}
+
+	var notes []model.Note
+	switch filter {
+	case "popular":
+		results := persistence.DB.Order("view_cnt desc").Limit(size).Offset(int(offset)*size).Preload("User").Preload("Course").Where("user_id = ?", user_id).Find(&notes)
+		if results.Error != nil {
+			return nil, total_cnt, results.Error
+		}
+		return notes, total_cnt, nil
+	case "recent":
+		results := persistence.DB.Order("created_at desc").Limit(size).Offset(int(offset)*size).Preload("User").Preload("Course").Where("user_id = ?", user_id).Find(&notes)
+		if results.Error != nil {
+			return nil, total_cnt, results.Error
+		}
+		return notes, total_cnt, nil
+	default:
+		return nil, total_cnt, nil
+	}
 }
