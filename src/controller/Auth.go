@@ -84,9 +84,6 @@ func Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"account_id": user.ID,
 		"token":      token,
-		"username":   user.Username,
-		"full_name":  user.Full_name,
-		"email":      user.Email,
 	})
 }
 
@@ -145,8 +142,5 @@ func GoogleLogin(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"account_id": user.ID,
 		"token":      token,
-		"username":   user.Username,
-		"full_name":  user.Full_name,
-		"email":      user.Email,
 	})
 }
