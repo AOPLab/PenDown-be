@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"fmt"
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/AOPLab/PenDown-be/src/service"
@@ -295,7 +297,7 @@ func UploadPreview(c *gin.Context) {
 	}
 
 	// Check Content-Type
-	if file.Header.Get("Content-Type") != "image/png" {
+	if file.Header.Get("Content-Type") != "image/jpeg" {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "FileTypeError",
 		})
@@ -322,7 +324,7 @@ func UploadPreview(c *gin.Context) {
 
 	// Generate preview file path
 	time := strconv.FormatInt(time.Now().Unix(), 10)
-	filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".png"
+	filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".jpg"
 	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
 
 	// Upload preview image file
@@ -348,4 +350,96 @@ func UploadPreview(c *gin.Context) {
 		"preview_filename": filename,
 	})
 	return
+}
+
+func GetPreviewFile(c *gin.Context) {
+	filename := c.Query("filename")
+	id := c.Query("note_id")
+	note_id, parse_err := strconv.ParseInt(id, 0, 64)
+	if parse_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "NoteIdPareseError",
+		})
+		return
+	}
+
+	note, note_err := service.GetNoteByIdWithCourse(note_id)
+	if note_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": note_err.Error(),
+		})
+		return
+	}
+
+	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
+	fmt.Print(note.Course)
+
+	// Check file is image
+	contain := strings.Contains(filename, "jpg")
+	if contain == false {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "FileNameError",
+		})
+		return
+	}
+
+	file_url, sign_err := service.SignedFileUrl(path)
+	if sign_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": sign_err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"file_url": file_url,
+	})
+}
+
+func GetNoteFile(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+	filename := c.Query("filename")
+	id := c.Query("note_id")
+	note_id, parse_err := strconv.ParseInt(id, 0, 64)
+	if parse_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "NoteIdPareseError",
+		})
+		return
+	}
+
+	note, note_err := service.GetNoteByIdWithCourse(note_id)
+	if note_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": note_err.Error(),
+		})
+		return
+	}
+
+	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
+
+	// check user can download file
+	if note.User_id != user_id && !service.CheckUserBuyNote(user_id, note.ID) {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "NoAuthorization",
+		})
+		return
+	}
+
+	if note.Pdf_filename != filename && note.Goodnotes_filename != filename && note.Notability_filename != filename {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "FilenameError",
+		})
+		return
+	}
+
+	file_url, sign_err := service.SignedFileUrl(path)
+	if sign_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": sign_err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"file_url": file_url,
+	})
 }
