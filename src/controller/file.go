@@ -425,6 +425,13 @@ func GetNoteFile(c *gin.Context) {
 		return
 	}
 
+	if note.Pdf_filename != filename && note.Goodnotes_filename != filename && note.Notability_filename != filename {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "FilenameError",
+		})
+		return
+	}
+
 	file_url, sign_err := service.SignedFileUrl(path)
 	if sign_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
