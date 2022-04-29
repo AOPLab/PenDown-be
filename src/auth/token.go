@@ -37,7 +37,7 @@ func SetClaim(user_id int64, is_google_user bool) (string, error) {
 			Id:        jwtId,
 			IssuedAt:  now.Unix(),
 			Issuer:    "ginJWT",
-			NotBefore: now.Add(time.Second).Unix(),
+			NotBefore: now.Unix(),
 			Subject:   strconv.FormatInt(user_id, 10),
 		},
 	}
