@@ -192,6 +192,64 @@ func GetNote(filter string, offset int64) ([]model.Note, int64, error) {
 	}
 }
 
+type NoteOutput struct {
+	Tag_id              string `json:"tag_id"`
+	ID                  string `json:"note_id"`
+	Title               string `json:"title"`
+	Notability_filename string `json:"notability_filename"`
+}
+
+// (tag_id int64, note_type string, filter string, offset int64)
+func GetNoteByTag(tag_id int64) (NoteOutput, error) {
+	// Join NoteTag and Note
+	// var notes []model.NoteTag
+	// results := persistence.DB.Joins("Note").Where("Tag_id = ?", tag_id).Where("Note.notability_filename IS NOT NULL").Find(&notes)
+	// if results.Error != nil {
+	// 	return nil, 0, results.Error
+	// } else {
+	// 	return notes, results.RowsAffected, results.Error
+	// }
+
+	var results NoteOutput
+	if err := persistence.DB.Table("notetag").Select("notetag.Tag_id, note.id, note.title, note.Notability_filename").Joins("JOIN note on note.id = notetag.Note_id").Find(&results).Error; err != nil {
+		return results, err
+	}
+	return results, nil
+
+	// var count int64
+	// var size = 6
+	// switch note_type {
+	// case "notability":
+	// 	persistence.DB.Model(&model.Note{}).Where("notability_filename IS NOT NULL").Count(&count)
+	// case "goodnotes":
+	// 	persistence.DB.Model(&model.Note{}).Where("goodnotes_filename IS NOT NULL").Count(&count)
+	// default:
+	// 	persistence.DB.Model(&model.Note{}).Count(&count)
+	// }
+	// total_cnt := int64(math.Ceil(float64(count) / float64(size)))
+	// if offset >= total_cnt {
+	// 	return nil, 0, errors.New("offset out of range")
+	// }
+
+	// var notes []model.Note
+	// switch filter {
+	// case "popular":
+	// 	results := persistence.DB.Order("view_cnt desc").Limit(size).Offset(int(offset) * size).Preload("User").Preload("Course").Find(&notes)
+	// 	if results.Error != nil {
+	// 		return nil, total_cnt, results.Error
+	// 	}
+	// 	return notes, total_cnt, nil
+	// case "recent":
+	// 	results := persistence.DB.Order("created_at desc").Limit(size).Offset(int(offset) * size).Preload("User").Preload("Course").Find(&notes)
+	// 	if results.Error != nil {
+	// 		return nil, total_cnt, results.Error
+	// 	}
+	// 	return notes, total_cnt, nil
+	// default:
+	// 	return nil, total_cnt, nil
+	// }
+}
+
 func GetNoteByUser(user_id int64, filter string, offset int64) ([]model.Note, int64, error) {
 	var count int64
 	var size = 6

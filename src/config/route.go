@@ -36,6 +36,7 @@ func Routes(r *gin.Engine) {
 		public_note.GET("/:note_id", controller.GetNote)
 		public_note.GET("/:note_id/tags", controller.GetNoteTag)
 		public_note.GET("/hot", controller.GetHotNote)
+		public_note.GET("/tag/:tag_id", controller.GetNoteByTag)
 	}
 
 	public_school := r.Group("api/school")

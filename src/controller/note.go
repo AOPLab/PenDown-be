@@ -317,3 +317,69 @@ func GetHotNote(c *gin.Context) {
 		"total_cnt": note_cnt,
 	})
 }
+
+func GetNoteByTag(c *gin.Context) {
+
+	// offset := c.Query("offset")
+	// filter := c.Query("filter")
+	// noteType := c.Query("type")
+	id := c.Params.ByName("tag_id")
+	// offset_num, parse_err := strconv.ParseInt(offset, 0, 64)
+	// if parse_err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"error": "Offset Parese Error",
+	// 	})
+	// 	return
+	// }
+	tag_id, parse_err := strconv.ParseInt(id, 0, 64)
+	if parse_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Tag Id Parse Error",
+		})
+		return
+	}
+
+	notes, note_err := service.GetNoteByTag(tag_id)
+
+	if note_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": note_err.Error(),
+		})
+		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"notes": notes,
+		})
+	}
+
+	// var note_outputs []*NoteBrief
+	// for _, note := range notes {
+	// 	note_output := &NoteBrief{
+	// 		ID:               note.ID,
+	// 		Username:         note.User.Username,
+	// 		Title:            note.Title,
+	// 		Preview_filename: note.Preview_filename,
+	// 		View_cnt:         note.View_cnt,
+	// 		CreatedAt:        note.CreatedAt,
+	// 	}
+	// 	// add note type
+	// 	if note.Notability_filename != "" && note.Goodnotes_filename != "" {
+	// 		note_output.Note_type = "All"
+	// 	} else if note.Notability_filename != "" {
+	// 		note_output.Note_type = "Notability"
+	// 	} else if note.Goodnotes_filename != "" {
+	// 		note_output.Note_type = "Goodnotes"
+	// 	}
+	// 	// calculate saved cnt
+	// 	cnt, save_err := service.GetNoteSavedCnt(note.ID)
+	// 	if save_err != nil {
+	// 		c.JSON(http.StatusBadRequest, gin.H{
+	// 			"error": note_err.Error(),
+	// 		})
+	// 		return
+	// 	}
+	// 	note_output.Saved_cnt = cnt
+	// 	note_outputs = append(note_outputs, note_output)
+	// }
+
+}
