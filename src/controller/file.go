@@ -104,7 +104,7 @@ func UploadNotability(c *gin.Context) {
 }
 
 // Upload Goodnotes File
-func UploadGoodnote(c *gin.Context) {
+func UploadGoodnotes(c *gin.Context) {
 	user_id := c.MustGet("user_id").(int64)
 	id := c.Params.ByName("note_id")
 	note_id, parse_err := strconv.ParseInt(id, 0, 64)
@@ -150,7 +150,7 @@ func UploadGoodnote(c *gin.Context) {
 
 	// Generate file path
 	time := strconv.FormatInt(time.Now().Unix(), 10)
-	filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".goodnote"
+	filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".goodnotes"
 	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
 	// fmt.Print(path)
 
@@ -164,7 +164,7 @@ func UploadGoodnote(c *gin.Context) {
 	}
 
 	// Update filename
-	update_err := service.UpdateGoodnoteFilename(note.ID, filename)
+	update_err := service.UpdateGoodnotesFilename(note.ID, filename)
 	if update_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": update_err.Error(),
@@ -173,8 +173,8 @@ func UploadGoodnote(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"note_id":           note.ID,
-		"goodnote_filename": filename,
+		"note_id":            note.ID,
+		"goodnotes_filename": filename,
 	})
 	return
 }

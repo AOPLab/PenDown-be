@@ -82,7 +82,7 @@ func Routes(r *gin.Engine) {
 		authorized_note.POST("/:note_id/tags/:tag_id", controller.AddNoteTag)
 		authorized_note.DELETE("/:note_id/tags/:tag_id", controller.DeleteNoteTag)
 		authorized_note.POST("/:note_id/notability", controller.UploadNotability)
-		authorized_note.POST("/:note_id/goodnote", controller.UploadGoodnote)
+		authorized_note.POST("/:note_id/goodnotes", controller.UploadGoodnotes)
 		authorized_note.POST("/:note_id/pdf", controller.UploadPdf)
 		authorized_note.POST("/:note_id/preview", controller.UploadPreview)
 	}
