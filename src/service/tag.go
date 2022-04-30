@@ -25,7 +25,7 @@ func AddTag(tag_name string) (*model.Tag, error) {
 	} else if err != nil {
 		return nil, err
 	} else {
-		return nil, err
+		return nil, errors.New("Tag already exists.")
 	}
 
 }
