@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -372,7 +371,6 @@ func GetPreviewFile(c *gin.Context) {
 	}
 
 	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
-	fmt.Print(note.Course)
 
 	// Check file is image
 	contain := strings.Contains(filename, "jpg")
