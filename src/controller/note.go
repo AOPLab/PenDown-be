@@ -275,7 +275,7 @@ func GetHotNote(c *gin.Context) {
 		})
 		return
 	}
-	notes, note_cnt, note_err := service.GetNote("popular", offset_num)
+	notes, note_cnt, note_err := service.GetNotes("hot", offset_num)
 
 	if note_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -341,7 +341,8 @@ func GetNoteByTag(c *gin.Context) {
 		return
 	}
 
-	notes, note_err := service.GetNoteByTag(tag_id)
+	filter := "notability-recent"
+	notes, note_cnt, note_err := service.GetNoteByTag(tag_id, filter, 0)
 
 	if note_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -350,7 +351,8 @@ func GetNoteByTag(c *gin.Context) {
 		return
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"notes": notes,
+			"notes":       notes,
+			"total_count": note_cnt,
 		})
 	}
 
