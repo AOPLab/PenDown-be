@@ -122,9 +122,9 @@ func UpdateGoodnoteFilename(note_id int64, filename string) error {
 	return nil
 }
 
-func UpdatePdfFilename(note_id int64, pdf_filename string) error {
+func UpdatePdfFilename(note_id int64, pdf_filename string, preview_filename string) error {
 	note := &model.Note{ID: note_id}
-	db_err := persistence.DB.Model(&note).Updates(model.Note{Pdf_filename: pdf_filename}).Error
+	db_err := persistence.DB.Model(&note).Updates(model.Note{Pdf_filename: pdf_filename, Preview_filename: preview_filename}).Error
 	if db_err != nil {
 		return db_err
 	}

@@ -229,8 +229,8 @@ func UploadPdf(c *gin.Context) {
 	time := strconv.FormatInt(time.Now().Unix(), 10)
 	filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".pdf"
 	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
-	// preview_filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".jpg"
-	// preview_path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + preview_filename
+	preview_filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".jpg"
+	preview_path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + preview_filename
 	// fmt.Print(path)
 
 	// Upload pdf file
@@ -242,26 +242,26 @@ func UploadPdf(c *gin.Context) {
 		return
 	}
 
-	// blobFile2, err := file.Open()
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{
-	// 		"error": err.Error(),
-	// 	})
-	// 	return
-	// }
-	// defer blobFile2.Close()
+	blobFile2, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	defer blobFile2.Close()
 
-	// // Upload pdf preview file
-	// preview_err := service.Fitz(preview_path, blobFile2)
-	// if preview_err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{
-	// 		"error": preview_err.Error(),
-	// 	})
-	// 	return
-	// }
+	// Upload pdf preview file
+	preview_err := service.Fitz(preview_path, blobFile2)
+	if preview_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": preview_err.Error(),
+		})
+		return
+	}
 
 	// Update filename (including pdf and preview)
-	update_err := service.UpdatePdfFilename(note.ID, filename)
+	update_err := service.UpdatePdfFilename(note.ID, filename, preview_filename)
 	if update_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": update_err.Error(),
@@ -270,8 +270,9 @@ func UploadPdf(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"note_id":      note.ID,
-		"pdf_filename": filename,
+		"note_id":          note.ID,
+		"pdf_filename":     filename,
+		"preview_filename": preview_filename,
 	})
 	return
 }
