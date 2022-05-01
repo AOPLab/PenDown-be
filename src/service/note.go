@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"math"
+	"time"
 
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
@@ -164,31 +165,46 @@ func GetNoteSavedCnt(note_id int64) (int64, error) {
 	return saved_cnt, nil
 }
 
+func UpdateNoteViewCnt(note_id int64, view_cnt int64) error {
+	note := &model.Note{ID: note_id}
+	db_err := persistence.DB.Model(&note).Update("view_cnt", view_cnt).Error
+	if db_err != nil {
+		return db_err
+	}
+
+	return nil
+}
+
 func GetNote(filter string, offset int64) ([]model.Note, int64, error) {
 	var count int64
 	var size = 6
-	persistence.DB.Model(&model.Note{}).Count(&count)
-	total_cnt := int64(math.Ceil(float64(count) / float64(size)))
-	if offset >= total_cnt {
-		return nil, 0, errors.New("offset out of range")
-	}
 
 	var notes []model.Note
 	switch filter {
 	case "popular":
-		results := persistence.DB.Order("view_cnt desc").Limit(size).Offset(int(offset) * size).Preload("User").Preload("Course").Find(&notes)
-		if results.Error != nil {
-			return nil, total_cnt, results.Error
+		persistence.DB.Model(&model.Note{}).Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
 		}
-		return notes, total_cnt, nil
+		date := time.Now()
+		lastMonth := date.AddDate(0, -1, 0)
+		results := persistence.DB.Order("view_cnt desc").Limit(size).Offset(int(offset)*size).Preload("User").Preload("Course").Where("created_at > ?", lastMonth).Find(&notes)
+		if results.Error != nil {
+			return nil, count, results.Error
+		}
+		return notes, count, nil
 	case "recent":
+		persistence.DB.Model(&model.Note{}).Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
 		results := persistence.DB.Order("created_at desc").Limit(size).Offset(int(offset) * size).Preload("User").Preload("Course").Find(&notes)
 		if results.Error != nil {
-			return nil, total_cnt, results.Error
+			return nil, count, results.Error
 		}
-		return notes, total_cnt, nil
+		return notes, count, nil
 	default:
-		return nil, total_cnt, nil
+		return nil, 0, nil
 	}
 }
 

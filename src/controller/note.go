@@ -261,6 +261,8 @@ func GetNote(c *gin.Context) {
 		}
 	}
 
+	service.UpdateNoteViewCnt(note.ID, note.View_cnt+1)
+
 	c.JSON(http.StatusOK, note_output)
 }
 
