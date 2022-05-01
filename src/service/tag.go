@@ -37,3 +37,19 @@ func GetTagsByBatch(tagIds *[]int64) (*[]model.Tag, error) {
 	}
 	return &tags, nil
 }
+
+type SearchTagOutput struct {
+	ID       int64  `json:"tag_id"`
+	Tag_name string `json:"tag_name"`
+}
+
+func SearchTag(q string, offset int, limit int) (*[]SearchTagOutput, int64, error) {
+	var results *[]SearchTagOutput
+	var count int64
+	searchName := "%" + q + "%"
+	if err := persistence.DB.Limit(limit).Offset(offset).Table("tags").Select("ID, tag_name").Where("tag_name LIKE ?", searchName).Find(&results).Error; err != nil {
+		return results, 0, err
+	}
+	persistence.DB.Table("tags").Where("tag_name LIKE ?", searchName).Count(&count)
+	return results, count, nil
+}

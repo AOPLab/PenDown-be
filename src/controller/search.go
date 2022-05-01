@@ -2,7 +2,9 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
+	"github.com/AOPLab/PenDown-be/src/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,20 +15,68 @@ func Search(c *gin.Context) {
 	q := c.Query("q")
 	note_type := c.Query("type")
 	filter := c.Query("filter")
-	offset := c.Query("offset")
+	offset_o := c.Query("offset")
+
+	offset, err := strconv.Atoi(offset_o)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "OffsetParseError",
+		})
+		return
+	}
 
 	switch filter {
 	case "people":
-		c.JSON(http.StatusOK, "Test")
+		result, total_cnt, err := service.SearchUser(q, offset, 12)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"people":    result,
+			"total_cnt": total_cnt,
+		})
 		return
 	case "tags":
-		c.JSON(http.StatusOK, "Test")
+		result, total_cnt, err := service.SearchTag(q, offset, 12)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"tags":      result,
+			"total_cnt": total_cnt,
+		})
 		return
 	case "schools":
-		c.JSON(http.StatusOK, "Test")
+		result, total_cnt, err := service.SearchSchool(q, offset, 12)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"schools":   result,
+			"total_cnt": total_cnt,
+		})
 		return
 	case "courses":
-		c.JSON(http.StatusOK, "Test")
+		result, total_cnt, err := service.SearchCourse(q, offset, 12)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"courses":   result,
+			"total_cnt": total_cnt,
+		})
 		return
 	case "notes":
 		c.JSON(http.StatusOK, "Test")
