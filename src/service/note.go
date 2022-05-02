@@ -240,40 +240,58 @@ func GetNoteByTag(tag_id int64, filter string, offset int64) ([]NoteOutput, int6
 
 	switch filter {
 	case "all-recent":
+		persistence.DB.Model(&model.NoteTag{}).Where("note_tags.tag_id = ?", tag_id).Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
 		if err := persistence.DB.Order("notes.created_at desc").Limit(size).Offset(int(offset)).Table("note_tags").Select(filter_col).Joins("JOIN notes on notes.id = note_tags.Note_id").Joins("JOIN users on users.id = notes.User_id").Where("note_tags.tag_id = ?", tag_id).Find(&results).Error; err != nil {
 			return results, 0, err
 		}
-		persistence.DB.Model(&model.NoteTag{}).Where("note_tags.tag_id = ?", tag_id).Count(&count)
 		return results, count, nil
 	case "all-popular":
+		persistence.DB.Model(&model.NoteTag{}).Where("note_tags.tag_id = ?", tag_id).Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
 		if err := persistence.DB.Order("notes.view_cnt desc").Limit(size).Offset(int(offset)).Table("note_tags").Select(filter_col).Joins("JOIN notes on notes.id = note_tags.Note_id").Joins("JOIN users on users.id = notes.User_id").Where("note_tags.tag_id = ?", tag_id).Find(&results).Error; err != nil {
 			return results, 0, err
 		}
-		persistence.DB.Model(&model.NoteTag{}).Where("note_tags.tag_id = ?", tag_id).Count(&count)
 		return results, count, nil
 	case "notability-recent":
+		persistence.DB.Table("note_tags").Joins("JOIN notes on notes.id = note_tags.Note_id").Where("note_tags.tag_id = ?", tag_id).Where("notability_filename IS NOT NULL").Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
 		if err := persistence.DB.Order("notes.created_at desc").Limit(size).Offset(int(offset)).Table("note_tags").Select(filter_col).Joins("JOIN notes on notes.id = note_tags.Note_id").Joins("JOIN users on users.id = notes.User_id").Where("note_tags.tag_id = ?", tag_id).Where("notability_filename IS NOT NULL").Find(&results).Error; err != nil {
 			return results, 0, err
 		}
-		persistence.DB.Table("note_tags").Joins("JOIN notes on notes.id = note_tags.Note_id").Where("note_tags.tag_id = ?", tag_id).Where("notability_filename IS NOT NULL").Count(&count)
 		return results, count, nil
 	case "notability-popular":
+		persistence.DB.Table("note_tags").Joins("JOIN notes on notes.id = note_tags.Note_id").Where("note_tags.tag_id = ?", tag_id).Where("notability_filename IS NOT NULL").Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
 		if err := persistence.DB.Order("notes.view_cnt desc").Limit(size).Offset(int(offset)).Table("note_tags").Select(filter_col).Joins("JOIN notes on notes.id = note_tags.Note_id").Joins("JOIN users on users.id = notes.User_id").Where("note_tags.tag_id = ?", tag_id).Where("notability_filename IS NOT NULL").Find(&results).Error; err != nil {
 			return results, 0, err
 		}
-		persistence.DB.Table("note_tags").Joins("JOIN notes on notes.id = note_tags.Note_id").Where("note_tags.tag_id = ?", tag_id).Where("notability_filename IS NOT NULL").Count(&count)
 		return results, count, nil
 	case "goodnotes-recent":
+		persistence.DB.Table("note_tags").Joins("JOIN notes on notes.id = note_tags.Note_id").Where("note_tags.tag_id = ?", tag_id).Where("goodnotes_filename IS NOT NULL").Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
 		if err := persistence.DB.Order("notes.created_at desc").Limit(size).Offset(int(offset)).Table("note_tags").Select(filter_col).Joins("JOIN notes on notes.id = note_tags.Note_id").Joins("JOIN users on users.id = notes.User_id").Where("note_tags.tag_id = ?", tag_id).Where("goodnotes_filename IS NOT NULL").Find(&results).Error; err != nil {
 			return results, 0, err
 		}
-		persistence.DB.Table("note_tags").Joins("JOIN notes on notes.id = note_tags.Note_id").Where("note_tags.tag_id = ?", tag_id).Where("goodnotes_filename IS NOT NULL").Count(&count)
 		return results, count, nil
 	case "goodnotes-popular":
+		persistence.DB.Table("note_tags").Joins("JOIN notes on notes.id = note_tags.Note_id").Where("note_tags.tag_id = ?", tag_id).Where("goodnotes_filename IS NOT NULL").Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
 		if err := persistence.DB.Order("notes.view_cnt desc").Limit(size).Offset(int(offset)).Table("note_tags").Select(filter_col).Joins("JOIN notes on notes.id = note_tags.Note_id").Joins("JOIN users on users.id = notes.User_id").Where("note_tags.tag_id = ?", tag_id).Where("goodnotes_filename IS NOT NULL").Find(&results).Error; err != nil {
 			return results, 0, err
 		}
-		persistence.DB.Table("note_tags").Joins("JOIN notes on notes.id = note_tags.Note_id").Where("note_tags.tag_id = ?", tag_id).Where("goodnotes_filename IS NOT NULL").Count(&count)
 		return results, count, nil
 	default:
 		return nil, 0, nil
