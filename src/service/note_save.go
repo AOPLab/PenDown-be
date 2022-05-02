@@ -1,7 +1,7 @@
 package service
 
 import (
-	"errors"
+	// "errors"
 
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
@@ -35,13 +35,13 @@ func SaveNote(user_id int64, note_id int64) error {
 }
 
 func DeleteSave(user_id int64, note_id int64) error {
-	saved, save_err := GetSave(user_id, note_id)
-	if save_err != nil {
-		return save_err
-	}
-	if !saved {
-		return errors.New("Doesn't saved.")
-	}
+	// saved, save_err := GetSave(user_id, note_id)
+	// if save_err != nil {
+	// 	return save_err
+	// }
+	// if !saved {
+	// 	return errors.New("Doesn't saved.")
+	// }
 
 	db_err := persistence.DB.Unscoped().Where("User_id = ? AND Note_id = ?", user_id, note_id).Delete(&model.Saved{}).Error
 	if db_err != nil {

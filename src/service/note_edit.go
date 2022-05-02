@@ -1,8 +1,6 @@
 package service
 
 import (
-	"errors"
-
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
 )
@@ -16,13 +14,13 @@ type EditNoteInput struct {
 }
 
 func EditNote(user_id int64, note_id int64, form EditNoteInput) error {
-	myNote, myNote_err := GetMyNote(user_id, note_id)
-	if myNote_err != nil {
-		return myNote_err
-	}
-	if !myNote {
-		return errors.New("Note doesn't exist.")
-	}
+	// myNote, myNote_err := GetMyNote(user_id, note_id)
+	// if myNote_err != nil {
+	// 	return myNote_err
+	// }
+	// if !myNote {
+	// 	return errors.New("Note doesn't exist.")
+	// }
 
 	err := persistence.DB.Model(&model.Note{}).Where("ID = ?", note_id).Updates(map[string]interface{}{"Title": form.Title, "Description": form.Description, "Course_id": form.Course_id, "Bean": form.Bean, "Is_template": form.Is_template}).Error
 	if err != nil {
@@ -33,13 +31,13 @@ func EditNote(user_id int64, note_id int64, form EditNoteInput) error {
 }
 
 func DeleteNote(user_id int64, note_id int64) error {
-	myNote, myNote_err := GetMyNote(user_id, note_id)
-	if myNote_err != nil {
-		return myNote_err
-	}
-	if !myNote {
-		return errors.New("Note doesn't exist.")
-	}
+	// myNote, myNote_err := GetMyNote(user_id, note_id)
+	// if myNote_err != nil {
+	// 	return myNote_err
+	// }
+	// if !myNote {
+	// 	return errors.New("Note doesn't exist.")
+	// }
 
 	db_err := persistence.DB.Unscoped().Where("User_id = ? AND ID = ?", user_id, note_id).Delete(&model.Note{}).Error
 	if db_err != nil {

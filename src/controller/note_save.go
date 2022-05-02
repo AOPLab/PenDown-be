@@ -26,8 +26,8 @@ func IsNoteSaved(c *gin.Context) {
 	// bool saved
 	saved, err := service.SavedNote(user_id, note_id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "Record not found.",
+		c.JSON(http.StatusOK, gin.H{
+			"is_saved": saved,
 		})
 		return
 	}
