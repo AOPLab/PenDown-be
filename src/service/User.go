@@ -96,8 +96,8 @@ type SearchUserOutput struct {
 	Username string `json:"username"`
 }
 
-func SearchUser(q string, offset int, limit int) (*[]SearchUserOutput, int64, error) {
-	var results *[]SearchUserOutput
+func SearchUser(q string, offset int, limit int) ([]SearchUserOutput, int64, error) {
+	var results []SearchUserOutput
 	var count int64
 	searchName := "%" + q + "%"
 	if err := persistence.DB.Limit(limit).Offset(offset).Table("users").Select("ID, username").Where("username LIKE ?", searchName).Find(&results).Error; err != nil {

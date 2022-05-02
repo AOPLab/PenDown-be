@@ -29,8 +29,8 @@ type SearchSchoolOutput struct {
 	School_name string `json:"school_name"`
 }
 
-func SearchSchool(q string, offset int, limit int) (*[]SearchSchoolOutput, int64, error) {
-	var results *[]SearchSchoolOutput
+func SearchSchool(q string, offset int, limit int) ([]SearchSchoolOutput, int64, error) {
+	var results []SearchSchoolOutput
 	var count int64
 	searchName := "%" + q + "%"
 	if err := persistence.DB.Limit(limit).Offset(offset).Table("schools").Select("ID, school_name").Where("school_name LIKE ?", searchName).Find(&results).Error; err != nil {

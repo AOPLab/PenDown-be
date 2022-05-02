@@ -43,8 +43,8 @@ type SearchTagOutput struct {
 	Tag_name string `json:"tag_name"`
 }
 
-func SearchTag(q string, offset int, limit int) (*[]SearchTagOutput, int64, error) {
-	var results *[]SearchTagOutput
+func SearchTag(q string, offset int, limit int) ([]SearchTagOutput, int64, error) {
+	var results []SearchTagOutput
 	var count int64
 	searchName := "%" + q + "%"
 	if err := persistence.DB.Limit(limit).Offset(offset).Table("tags").Select("ID, tag_name").Where("tag_name LIKE ?", searchName).Find(&results).Error; err != nil {
