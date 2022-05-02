@@ -128,7 +128,14 @@ func Search(c *gin.Context) {
 			note_output.Saved_cnt = cnt
 			note_outputs = append(note_outputs, note_output)
 		}
-
+		if note_outputs == nil {
+			var output [0]int
+			c.JSON(http.StatusOK, gin.H{
+				"notes":     output,
+				"total_cnt": total_cnt,
+			})
+			return
+		}
 		c.JSON(http.StatusOK, gin.H{
 			"notes":     note_outputs,
 			"total_cnt": total_cnt,
@@ -171,9 +178,17 @@ func Search(c *gin.Context) {
 			note_output.Saved_cnt = cnt
 			note_outputs = append(note_outputs, note_output)
 		}
+		if note_outputs == nil {
+			var output [0]int
+			c.JSON(http.StatusOK, gin.H{
+				"templates": output,
+				"total_cnt": total_cnt,
+			})
+			return
+		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"templates": result,
+			"templates": note_outputs,
 			"total_cnt": total_cnt,
 		})
 		return
