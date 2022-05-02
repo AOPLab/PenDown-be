@@ -11,13 +11,14 @@ func AddTag(tag_name string) (*model.Tag, error) {
 		Tag_name: tag_name,
 	}
 
-	db_err := persistence.DB.Model(&model.Tag{}).Where("Tag_name = ?", tag_name).FirstOrCreate(&tag).Error
+	db_err := persistence.DB.Model(&model.Tag{}).FirstOrCreate(&tag).Error
 	if db_err != nil {
 		return nil, db_err
 	}
-	return tag, nil
 
+	return tag, nil
 }
+
 func FindTags() ([]*model.Tag, error) {
 
 	var tags []*model.Tag
@@ -26,4 +27,13 @@ func FindTags() ([]*model.Tag, error) {
 		return nil, res.Error
 	}
 	return tags, nil
+}
+
+func GetTagsByBatch(tagIds *[]int64) (*[]model.Tag, error) {
+	var tags []model.Tag
+	db_err := persistence.DB.Select([]string{"id", "tag_name"}).Where("id IN ?", *tagIds).Find(&tags).Error
+	if db_err != nil {
+		return nil, db_err
+	}
+	return &tags, nil
 }

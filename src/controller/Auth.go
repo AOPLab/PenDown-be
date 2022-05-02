@@ -85,7 +85,6 @@ func Login(c *gin.Context) {
 		"account_id": user.ID,
 		"token":      token,
 	})
-	return
 }
 
 func GoogleLogin(c *gin.Context) {
@@ -144,5 +143,4 @@ func GoogleLogin(c *gin.Context) {
 		"account_id": user.ID,
 		"token":      token,
 	})
-	return
 }
