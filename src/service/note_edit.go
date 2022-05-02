@@ -22,7 +22,7 @@ func EditNote(user_id int64, note_id int64, form EditNoteInput) error {
 	// 	return errors.New("Note doesn't exist.")
 	// }
 
-	err := persistence.DB.Model(&model.Note{}).Where("ID = ?", note_id).Updates(map[string]interface{}{"Title": form.Title, "Description": form.Description, "Course_id": form.Course_id, "Bean": form.Bean, "Is_template": form.Is_template}).Error
+	err := persistence.DB.Model(&model.Note{}).Where("User_id = ? AND ID = ?", user_id, note_id).Updates(map[string]interface{}{"Title": form.Title, "Description": form.Description, "Course_id": form.Course_id, "Bean": form.Bean, "Is_template": form.Is_template}).Error
 	if err != nil {
 		return err
 	} else {

@@ -26,7 +26,7 @@ func SaveNote(user_id int64, note_id int64) error {
 		Note_id: note_id,
 	}
 
-	db_err := persistence.DB.Model(&model.Saved{}).Create(&save).Error
+	db_err := persistence.DB.Model(&model.Saved{}).FirstOrCreate(&save).Error
 	if db_err != nil {
 		return db_err
 	} else {
