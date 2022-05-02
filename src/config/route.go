@@ -36,6 +36,9 @@ func Routes(r *gin.Engine) {
 	{
 		public_note.GET("/:note_id", controller.GetNote)
 		public_note.GET("/:note_id/tags", controller.GetNoteTag)
+		public_note.GET("/hot", controller.GetHotNote)
+		public_note.GET("/tag/:tag_id", controller.GetNoteByTag)
+		public_note.GET("/course/:course_id", controller.GetNoteByCourse)
 	}
 
 	public_school := r.Group("/api/school")
@@ -86,6 +89,11 @@ func Routes(r *gin.Engine) {
 		authorized_note.POST("/:note_id/goodnotes", controller.UploadGoodnotes)
 		authorized_note.POST("/:note_id/pdf", controller.UploadPdf)
 		authorized_note.POST("/:note_id/preview", controller.UploadPreview)
+		authorized_note.GET("/:note_id/save", controller.IsNoteSaved)
+		authorized_note.POST("/:note_id/save", controller.SaveNote)
+		authorized_note.DELETE("/:note_id/save", controller.DeleteSave)
+		authorized_note.PATCH("/:note_id", controller.EditNote)
+		authorized_note.DELETE("/:note_id", controller.DeleteNote)
 	}
 
 	authorized_file := r.Group("/api/file")

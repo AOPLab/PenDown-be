@@ -236,3 +236,238 @@ func SearchTemplate(q string, offset int, limit int, note_type string) ([]Search
 	}
 	return results, count, nil
 }
+
+func UpdateNoteViewCnt(note_id int64, view_cnt int64) error {
+	note := &model.Note{ID: note_id}
+	db_err := persistence.DB.Model(&note).Update("view_cnt", view_cnt).Error
+	if db_err != nil {
+		return db_err
+	}
+
+	return nil
+}
+
+func GetNotes(filter string, offset int64) ([]model.Note, int64, error) {
+	var count int64
+	var size = 6
+
+	var notes []model.Note
+	switch filter {
+	case "hot":
+		date := time.Now()
+		lastMonth := date.AddDate(0, -1, 0)
+		persistence.DB.Model(&model.Note{}).Where("created_at > ?", lastMonth).Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		results := persistence.DB.Order("view_cnt desc").Limit(size).Offset(int(offset)).Preload("User").Preload("Course").Where("created_at > ?", lastMonth).Find(&notes)
+		if results.Error != nil {
+			return nil, count, results.Error
+		}
+		return notes, count, nil
+	case "popular":
+		persistence.DB.Model(&model.Note{}).Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		results := persistence.DB.Order("view_cnt desc").Limit(size).Offset(int(offset)).Preload("User").Preload("Course").Find(&notes)
+		if results.Error != nil {
+			return nil, count, results.Error
+		}
+		return notes, count, nil
+	case "recent":
+		persistence.DB.Model(&model.Note{}).Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		results := persistence.DB.Order("created_at desc").Limit(size).Offset(int(offset)).Preload("User").Preload("Course").Find(&notes)
+		if results.Error != nil {
+			return nil, count, results.Error
+		}
+		return notes, count, nil
+	default:
+		return nil, 0, nil
+	}
+}
+
+type NoteOutput struct {
+	Note_ID             int64     `json:"note_id"`
+	ID                  int64     `json:"user_id"`
+	Username            string    `json:"username"`
+	Title               string    `json:"title"`
+	Preview_filename    string    `json:"preview_filename"`
+	Goodnotes_filename  string    `json:"goodnotes_filename"`
+	Notability_filename string    `json:"notability_filename"`
+	View_cnt            int64     `json:"view_cnt"`
+	CreatedAt           time.Time `json:"created_at"`
+}
+
+// string type: all-popular, notability-popular, goodnotes-popular, all-recent, notability-recent, goodnotes-recent
+func GetNoteByTag(tag_id int64, filter string, offset int64) ([]NoteOutput, int64, error) {
+	// Join NoteTag and Note
+	size := 9
+	var results []NoteOutput
+	var count int64
+
+	filter_col := "note_tags.note_id, users.ID, users.username, notes.title, notes.preview_filename, notes.notability_filename, notes.goodnotes_filename, notes.created_at, notes.view_cnt"
+
+	switch filter {
+	case "all-recent":
+		persistence.DB.Model(&model.NoteTag{}).Where("note_tags.tag_id = ?", tag_id).Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		if err := persistence.DB.Order("notes.created_at desc").Limit(size).Offset(int(offset)).Table("note_tags").Select(filter_col).Joins("JOIN notes on notes.id = note_tags.Note_id").Joins("JOIN users on users.id = notes.User_id").Where("note_tags.tag_id = ?", tag_id).Find(&results).Error; err != nil {
+			return results, 0, err
+		}
+		return results, count, nil
+	case "all-popular":
+		persistence.DB.Model(&model.NoteTag{}).Where("note_tags.tag_id = ?", tag_id).Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		if err := persistence.DB.Order("notes.view_cnt desc").Limit(size).Offset(int(offset)).Table("note_tags").Select(filter_col).Joins("JOIN notes on notes.id = note_tags.Note_id").Joins("JOIN users on users.id = notes.User_id").Where("note_tags.tag_id = ?", tag_id).Find(&results).Error; err != nil {
+			return results, 0, err
+		}
+		return results, count, nil
+	case "notability-recent":
+		persistence.DB.Table("note_tags").Joins("JOIN notes on notes.id = note_tags.Note_id").Where("note_tags.tag_id = ?", tag_id).Where("notability_filename IS NOT NULL").Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		if err := persistence.DB.Order("notes.created_at desc").Limit(size).Offset(int(offset)).Table("note_tags").Select(filter_col).Joins("JOIN notes on notes.id = note_tags.Note_id").Joins("JOIN users on users.id = notes.User_id").Where("note_tags.tag_id = ?", tag_id).Where("notability_filename IS NOT NULL").Find(&results).Error; err != nil {
+			return results, 0, err
+		}
+		return results, count, nil
+	case "notability-popular":
+		persistence.DB.Table("note_tags").Joins("JOIN notes on notes.id = note_tags.Note_id").Where("note_tags.tag_id = ?", tag_id).Where("notability_filename IS NOT NULL").Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		if err := persistence.DB.Order("notes.view_cnt desc").Limit(size).Offset(int(offset)).Table("note_tags").Select(filter_col).Joins("JOIN notes on notes.id = note_tags.Note_id").Joins("JOIN users on users.id = notes.User_id").Where("note_tags.tag_id = ?", tag_id).Where("notability_filename IS NOT NULL").Find(&results).Error; err != nil {
+			return results, 0, err
+		}
+		return results, count, nil
+	case "goodnotes-recent":
+		persistence.DB.Table("note_tags").Joins("JOIN notes on notes.id = note_tags.Note_id").Where("note_tags.tag_id = ?", tag_id).Where("goodnotes_filename IS NOT NULL").Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		if err := persistence.DB.Order("notes.created_at desc").Limit(size).Offset(int(offset)).Table("note_tags").Select(filter_col).Joins("JOIN notes on notes.id = note_tags.Note_id").Joins("JOIN users on users.id = notes.User_id").Where("note_tags.tag_id = ?", tag_id).Where("goodnotes_filename IS NOT NULL").Find(&results).Error; err != nil {
+			return results, 0, err
+		}
+		return results, count, nil
+	case "goodnotes-popular":
+		persistence.DB.Table("note_tags").Joins("JOIN notes on notes.id = note_tags.Note_id").Where("note_tags.tag_id = ?", tag_id).Where("goodnotes_filename IS NOT NULL").Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		if err := persistence.DB.Order("notes.view_cnt desc").Limit(size).Offset(int(offset)).Table("note_tags").Select(filter_col).Joins("JOIN notes on notes.id = note_tags.Note_id").Joins("JOIN users on users.id = notes.User_id").Where("note_tags.tag_id = ?", tag_id).Where("goodnotes_filename IS NOT NULL").Find(&results).Error; err != nil {
+			return results, 0, err
+		}
+		return results, count, nil
+	default:
+		return nil, 0, nil
+	}
+}
+
+// string type: all-popular, notability-popular, goodnotes-popular, all-recent, notability-recent, goodnotes-recent
+func GetNoteByCourse(course_id int64, filter string, offset int64) ([]model.Note, int64, error) {
+	// Join NoteTag and Note
+	size := 6
+	var notes []model.Note
+	var count int64
+
+	switch filter {
+	case "all-recent":
+		persistence.DB.Model(&model.Note{}).Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		results := persistence.DB.Order("created_at desc").Limit(size).Offset(int(offset)).Preload("User").Where("Course_id = ?", course_id).Find(&notes)
+		if results.Error != nil {
+			return nil, count, results.Error
+		}
+		return notes, count, nil
+	case "all-popular":
+		persistence.DB.Model(&model.Note{}).Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		results := persistence.DB.Order("view_cnt desc").Limit(size).Offset(int(offset)).Preload("User").Where("Course_id = ?", course_id).Find(&notes)
+		if results.Error != nil {
+			return nil, count, results.Error
+		}
+		return notes, count, nil
+	case "notability-recent":
+		persistence.DB.Model(&model.Note{}).Where("notability_filename IS NOT NULL").Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		results := persistence.DB.Order("created_at desc").Limit(size).Offset(int(offset)).Preload("User").Where("Course_id = ?", course_id).Where("notability_filename IS NOT NULL").Find(&notes)
+		if results.Error != nil {
+			return nil, count, results.Error
+		}
+		return notes, count, nil
+	case "notability-popular":
+		persistence.DB.Model(&model.Note{}).Where("notability_filename IS NOT NULL").Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		results := persistence.DB.Order("view_cnt desc").Limit(size).Offset(int(offset)).Preload("User").Where("Course_id = ?", course_id).Where("notability_filename IS NOT NULL").Find(&notes)
+		if results.Error != nil {
+			return nil, count, results.Error
+		}
+		return notes, count, nil
+	case "goodnotes-recent":
+		persistence.DB.Model(&model.Note{}).Where("goodnotes_filename IS NOT NULL").Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		results := persistence.DB.Order("created_at desc").Limit(size).Offset(int(offset)).Preload("User").Where("Course_id = ?", course_id).Where("goodnotes_filename IS NOT NULL").Find(&notes)
+		if results.Error != nil {
+			return nil, count, results.Error
+		}
+		return notes, count, nil
+	case "goodnotes-popular":
+		persistence.DB.Model(&model.Note{}).Where("goodnotes_filename IS NOT NULL").Count(&count)
+		if offset >= count {
+			return nil, 0, errors.New("offset out of range")
+		}
+		results := persistence.DB.Order("view_cnt desc").Limit(size).Offset(int(offset)).Preload("User").Where("Course_id = ?", course_id).Where("goodnotes_filename IS NOT NULL").Find(&notes)
+		if results.Error != nil {
+			return nil, count, results.Error
+		}
+		return notes, count, nil
+	default:
+		return nil, 0, nil
+	}
+}
+
+func GetNoteByUser(user_id int64, filter string, offset int64) ([]model.Note, int64, error) {
+	var count int64
+	var size = 9
+	persistence.DB.Model(&model.Note{}).Where("user_id = ?", user_id).Count(&count)
+	total_cnt := count
+	if offset >= total_cnt {
+		return nil, 0, errors.New("offset out of range")
+	}
+
+	var notes []model.Note
+	switch filter {
+	case "popular":
+		results := persistence.DB.Order("view_cnt desc").Limit(size).Offset(int(offset)).Preload("User").Preload("Course").Where("user_id = ?", user_id).Find(&notes)
+		if results.Error != nil {
+			return nil, total_cnt, results.Error
+		}
+		return notes, total_cnt, nil
+	case "recent":
+		results := persistence.DB.Order("created_at desc").Limit(size).Offset(int(offset)).Preload("User").Preload("Course").Where("user_id = ?", user_id).Find(&notes)
+		if results.Error != nil {
+			return nil, total_cnt, results.Error
+		}
+		return notes, total_cnt, nil
+	default:
+		return nil, total_cnt, nil
+	}
+}
