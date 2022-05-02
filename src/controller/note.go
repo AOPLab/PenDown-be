@@ -49,7 +49,8 @@ type NoteOutput struct {
 }
 
 type NoteBrief struct {
-	ID               int64     `json:"note_id"`
+	Note_ID          int64     `json:"note_id"`
+	Account_ID       int64     `json:"account_id"`
 	Username         string    `json:"username"`
 	Title            string    `json:"title"`
 	View_cnt         int64     `json:"view_cnt"`
@@ -287,7 +288,8 @@ func GetHotNote(c *gin.Context) {
 	var note_outputs []*NoteBrief
 	for _, note := range notes {
 		note_output := &NoteBrief{
-			ID:               note.ID,
+			Note_ID:          note.ID,
+			Account_ID:       note.User.ID,
 			Username:         note.User.Username,
 			Title:            note.Title,
 			Preview_filename: note.Preview_filename,
@@ -322,17 +324,17 @@ func GetHotNote(c *gin.Context) {
 
 func GetNoteByTag(c *gin.Context) {
 
-	// offset := c.Query("offset")
-	// filter := c.Query("filter")
-	// noteType := c.Query("type")
+	offset := c.Query("offset")
+	filter := c.Query("filter")
+	noteType := c.Query("type")
 	id := c.Params.ByName("tag_id")
-	// offset_num, parse_err := strconv.ParseInt(offset, 0, 64)
-	// if parse_err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{
-	// 		"error": "Offset Parese Error",
-	// 	})
-	// 	return
-	// }
+	offset_num, parse_err := strconv.ParseInt(offset, 0, 64)
+	if parse_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Offset Parese Error",
+		})
+		return
+	}
 	tag_id, parse_err := strconv.ParseInt(id, 0, 64)
 	if parse_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -341,49 +343,48 @@ func GetNoteByTag(c *gin.Context) {
 		return
 	}
 
-	filter := "notability-recent"
-	notes, note_cnt, note_err := service.GetNoteByTag(tag_id, filter, 0)
+	full_filter := noteType + "-" + filter
+	notes, note_cnt, note_err := service.GetNoteByTag(tag_id, full_filter, offset_num)
 
 	if note_err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": note_err.Error(),
 		})
 		return
-	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"notes":       notes,
-			"total_count": note_cnt,
-		})
+	}
+	var note_outputs []*NoteBrief
+	for _, note := range notes {
+		note_output := &NoteBrief{
+			Note_ID:          note.Note_ID,
+			Account_ID:       note.ID,
+			Username:         note.Username,
+			Title:            note.Title,
+			Preview_filename: note.Preview_filename,
+			View_cnt:         note.View_cnt,
+			CreatedAt:        note.CreatedAt,
+		}
+		// add note type
+		if note.Notability_filename != "" && note.Goodnotes_filename != "" {
+			note_output.Note_type = "All"
+		} else if note.Notability_filename != "" {
+			note_output.Note_type = "Notability"
+		} else if note.Goodnotes_filename != "" {
+			note_output.Note_type = "Goodnotes"
+		}
+		// calculate saved cnt
+		cnt, save_err := service.GetNoteSavedCnt(note.ID)
+		if save_err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": note_err.Error(),
+			})
+			return
+		}
+		note_output.Saved_cnt = cnt
+		note_outputs = append(note_outputs, note_output)
 	}
 
-	// var note_outputs []*NoteBrief
-	// for _, note := range notes {
-	// 	note_output := &NoteBrief{
-	// 		ID:               note.ID,
-	// 		Username:         note.User.Username,
-	// 		Title:            note.Title,
-	// 		Preview_filename: note.Preview_filename,
-	// 		View_cnt:         note.View_cnt,
-	// 		CreatedAt:        note.CreatedAt,
-	// 	}
-	// 	// add note type
-	// 	if note.Notability_filename != "" && note.Goodnotes_filename != "" {
-	// 		note_output.Note_type = "All"
-	// 	} else if note.Notability_filename != "" {
-	// 		note_output.Note_type = "Notability"
-	// 	} else if note.Goodnotes_filename != "" {
-	// 		note_output.Note_type = "Goodnotes"
-	// 	}
-	// 	// calculate saved cnt
-	// 	cnt, save_err := service.GetNoteSavedCnt(note.ID)
-	// 	if save_err != nil {
-	// 		c.JSON(http.StatusBadRequest, gin.H{
-	// 			"error": note_err.Error(),
-	// 		})
-	// 		return
-	// 	}
-	// 	note_output.Saved_cnt = cnt
-	// 	note_outputs = append(note_outputs, note_output)
-	// }
-
+	c.JSON(http.StatusOK, gin.H{
+		"notes":     note_outputs,
+		"total_cnt": note_cnt,
+	})
 }
