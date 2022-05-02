@@ -15,17 +15,43 @@ func Routes(r *gin.Engine) {
 		public.POST("/account", controller.Register)
 		public.POST("/login", controller.Login)
 		public.POST("/login/google", controller.GoogleLogin)
-		public.GET("/account/:account_id/profile", controller.GetPublicProfile)
-		public.GET("/account/:account_id/followers", controller.GetFollowers)
-		public.GET("/account/:account_id/followings", controller.GetFollowing)
-		public.GET("/account/:account_id/following/:following_id", controller.GetFollow)
-		public.GET("/tag", controller.GetTags)
-		public.POST("/tag", controller.AddTag)
-		public.GET("/school", controller.GetSchools)
-		public.GET("/school/:school_id", controller.GetSchool)
-		public.GET("/school/:school_id/course", controller.GetSchoolCourse)
-		public.GET("/course/:course_id", controller.GetCourse)
+	}
 
+	public_account := r.Group("api/account")
+	{
+		public_account.GET("/:account_id/profile", controller.GetPublicProfile)
+		public_account.GET("/:account_id/followers", controller.GetFollowers)
+		public_account.GET("/:account_id/followings", controller.GetFollowing)
+		public_account.GET("/:account_id/following/:following_id", controller.GetFollow)
+	}
+
+	public_tag := r.Group("api/tag")
+	{
+		public_tag.GET("", controller.GetTags)
+		public_tag.POST("", controller.AddTag)
+	}
+
+	public_note := r.Group("api/notes")
+	{
+		public_note.GET("/:note_id", controller.GetNote)
+		public_note.GET("/:note_id/tags", controller.GetNoteTag)
+	}
+
+	public_school := r.Group("api/school")
+	{
+		public_school.GET("", controller.GetSchools)
+		public_school.GET("/:school_id", controller.GetSchool)
+		public_school.GET("/:school_id/course", controller.GetSchoolCourse)
+	}
+
+	public_course := r.Group("api/course")
+	{
+		public_course.GET("/:course_id", controller.GetCourse)
+	}
+
+	public_file := r.Group("/api/file")
+	{
+		public_file.GET("/preview", controller.GetPreviewFile)
 	}
 
 	// protected member router
@@ -37,23 +63,38 @@ func Routes(r *gin.Engine) {
 				"user_id": c.MustGet("user_id"),
 			})
 		})
-		authorized.GET("account", controller.GetPrivateProfile)
-		authorized.PATCH("account", controller.EditProfile)
-		authorized.PUT("account/:account_id/pass_hash", controller.EditPassword)
-		authorized.POST("/account/:account_id/follow", controller.AddFollow)
-		authorized.DELETE("/account/:account_id/follow", controller.DeleteFollow)
-		authorized.POST("/notes", controller.AddNote)
-		authorized.POST("/notes/:note_id/tags/:tag_id", controller.AddNoteTag)
-		authorized.DELETE("/notes/:note_id/tags/:tag_id", controller.DeleteNoteTag)
-		authorized.POST("/notes/:note_id/notability", controller.UploadNotability)
-		authorized.POST("/notes/:note_id/goodnote", controller.UploadGoodnote)
-		authorized.POST("/notes/:note_id/pdf", controller.UploadPdf)
-		authorized.POST("/notes/:note_id/preview", controller.UploadPreview)
-		authorized.GET("/notes/:note_id/save", controller.IsNoteSaved)
-		authorized.POST("/notes/:note_id/save", controller.SaveNote)
-		authorized.DELETE("/notes/:note_id/save", controller.DeleteSave)
-		authorized.PATCH("/notes/:note_id", controller.EditNote)
-		authorized.DELETE("/notes/:note_id", controller.DeleteNote)
+	}
 
+	authorized_account := r.Group("/api/account")
+	authorized_account.Use(auth.AuthRequired)
+	{
+		authorized_account.GET("", controller.GetPrivateProfile)
+		authorized_account.PATCH("", controller.EditProfile)
+		authorized_account.PUT("/:account_id/pass_hash", controller.EditPassword)
+		authorized_account.POST("/:account_id/follow", controller.AddFollow)
+		authorized_account.DELETE("/:account_id/follow", controller.DeleteFollow)
+	}
+
+	authorized_note := r.Group("/api/notes")
+	authorized_note.Use(auth.AuthRequired)
+	{
+		authorized_note.POST("", controller.AddNote)
+		authorized_note.POST("/:note_id/tags/:tag_id", controller.AddNoteTag)
+		authorized_note.DELETE("/:note_id/tags/:tag_id", controller.DeleteNoteTag)
+		authorized_note.POST("/:note_id/notability", controller.UploadNotability)
+		authorized_note.POST("/:note_id/goodnotes", controller.UploadGoodnotes)
+		authorized_note.POST("/:note_id/pdf", controller.UploadPdf)
+		authorized_note.POST("/:note_id/preview", controller.UploadPreview)
+		authorized_note.GET("/:note_id/save", controller.IsNoteSaved)
+		authorized_note.POST("/:note_id/save", controller.SaveNote)
+		authorized_note.DELETE("/:note_id/save", controller.DeleteSave)
+		authorized_note.PATCH("/:note_id", controller.EditNote)
+		authorized_note.DELETE("/:note_id", controller.DeleteNote)
+	}
+
+	authorized_file := r.Group("/api/file")
+	authorized_file.Use(auth.AuthRequired)
+	{
+		authorized_file.GET("/", controller.GetNoteFile)
 	}
 }
