@@ -24,6 +24,7 @@ func Routes(r *gin.Engine) {
 		public_account.GET("/:account_id/followers", controller.GetFollowers)
 		public_account.GET("/:account_id/followings", controller.GetFollowing)
 		public_account.GET("/:account_id/following/:following_id", controller.GetFollow)
+		public_account.GET("/:account_id/notes", controller.GetNotesByUserIdPublic)
 	}
 
 	public_tag := r.Group("/api/tag")
@@ -77,6 +78,7 @@ func Routes(r *gin.Engine) {
 		authorized_account.PUT("/:account_id/pass_hash", controller.EditPassword)
 		authorized_account.POST("/:account_id/follow", controller.AddFollow)
 		authorized_account.DELETE("/:account_id/follow", controller.DeleteFollow)
+		authorized_account.GET("/:account_id/selfnotes", controller.GetOwnNotes)
 	}
 
 	authorized_note := r.Group("/api/notes")
