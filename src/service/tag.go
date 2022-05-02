@@ -11,7 +11,7 @@ func AddTag(tag_name string) (*model.Tag, error) {
 		Tag_name: tag_name,
 	}
 
-	db_err := persistence.DB.Model(&model.Tag{}).Create(&tag).Error
+	db_err := persistence.DB.Model(&model.Tag{}).FirstOrCreate(&tag).Error
 	if db_err != nil {
 		return nil, db_err
 	}

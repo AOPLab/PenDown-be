@@ -10,14 +10,14 @@ import (
 )
 
 func Routes(r *gin.Engine) {
-	public := r.Group("api")
+	public := r.Group("/api")
 	{
 		public.POST("/account", controller.Register)
 		public.POST("/login", controller.Login)
 		public.POST("/login/google", controller.GoogleLogin)
 	}
 
-	public_account := r.Group("api/account")
+	public_account := r.Group("/api/account")
 	{
 		public_account.GET("/:account_id/profile", controller.GetPublicProfile)
 		public_account.GET("/:account_id/followers", controller.GetFollowers)
@@ -25,13 +25,13 @@ func Routes(r *gin.Engine) {
 		public_account.GET("/:account_id/following/:following_id", controller.GetFollow)
 	}
 
-	public_tag := r.Group("api/tag")
+	public_tag := r.Group("/api/tag")
 	{
 		public_tag.GET("", controller.GetTags)
 		public_tag.POST("", controller.AddTag)
 	}
 
-	public_note := r.Group("api/notes")
+	public_note := r.Group("/api/notes")
 	{
 		public_note.GET("/:note_id", controller.GetNote)
 		public_note.GET("/:note_id/tags", controller.GetNoteTag)
@@ -40,14 +40,14 @@ func Routes(r *gin.Engine) {
 		public_note.GET("/course/:course_id", controller.GetNoteByCourse)
 	}
 
-	public_school := r.Group("api/school")
+	public_school := r.Group("/api/school")
 	{
 		public_school.GET("", controller.GetSchools)
 		public_school.GET("/:school_id", controller.GetSchool)
 		public_school.GET("/:school_id/course", controller.GetSchoolCourse)
 	}
 
-	public_course := r.Group("api/course")
+	public_course := r.Group("/api/course")
 	{
 		public_course.GET("/:course_id", controller.GetCourse)
 	}
