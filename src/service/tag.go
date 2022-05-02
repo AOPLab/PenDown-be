@@ -1,17 +1,20 @@
 package service
 
 import (
+	"strings"
+
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
 )
 
 func AddTag(tag_name string) (*model.Tag, error) {
 
+	tag_name = strings.ToLower(tag_name)
 	tag := &model.Tag{
 		Tag_name: tag_name,
 	}
 
-	db_err := persistence.DB.Model(&model.Tag{}).FirstOrCreate(&tag).Error
+	db_err := persistence.DB.Model(&model.Tag{}).Where("Tag_name = ?", tag_name).FirstOrCreate(&tag).Error
 	if db_err != nil {
 		return nil, db_err
 	}
