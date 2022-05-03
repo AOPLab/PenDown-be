@@ -16,7 +16,7 @@ type AddNoteInput struct {
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description" binding:"required"`
 	Is_template *bool  `json:"is_template" binding:"required"`
-	Course_id   int64  `json:"course_id" binding:"required"`
+	Course_id   *int64 `json:"course_id"`
 	Bean        *int   `json:"bean" binding:"required"`
 }
 

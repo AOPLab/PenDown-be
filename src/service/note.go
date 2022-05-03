@@ -47,15 +47,17 @@ func DeleteNoteTag(user_id int64, note_id int64, tag_id int64) error {
 	return nil
 }
 
-func AddNote(user_id int64, title string, description string, is_template bool, course_id int64, bean int) (*model.Note, error) {
-
+func AddNote(user_id int64, title string, description string, is_template bool, course_id *int64, bean int) (*model.Note, error) {
 	note := &model.Note{
 		User_id:     user_id,
 		Title:       title,
 		Description: description,
 		Is_template: is_template,
-		Course_id:   course_id,
 		Bean:        bean,
+	}
+
+	if course_id != nil {
+		note.Course_id = *course_id
 	}
 
 	db_err := persistence.DB.Model(&model.Note{}).Create(&note).Error
