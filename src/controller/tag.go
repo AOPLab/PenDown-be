@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/AOPLab/PenDown-be/src/service"
 
@@ -68,4 +69,36 @@ func GetTags(c *gin.Context) {
 	}
 	return
 
+}
+
+// GET Tag
+func GetTag(c *gin.Context) {
+	id := c.Params.ByName("tag_id")
+	tag_id, pasre_err := strconv.ParseInt(id, 0, 64)
+	if pasre_err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "input format error",
+		})
+		return
+	}
+	tag, err := service.FindTag(tag_id)
+
+	if err != nil {
+		if err.Error() == "record not found" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "tag_id not exists",
+			})
+			return
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"tag_name": tag.Tag_name,
+		})
+	}
+	return
 }
