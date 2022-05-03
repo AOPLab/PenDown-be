@@ -11,12 +11,6 @@ import (
 
 // Buy Note
 func BuyNote(c *gin.Context) {
-	// 要有足夠才能買
-	// --> 用 note_id 查賣家
-	// --> 更新雙方豆子(給賣家8成，要四捨五入)
-	// --> New Download tuple (First or Create)
-	// 共 5 支 API
-
 	user_id := c.MustGet("user_id").(int64)
 	id := c.Params.ByName("note_id")
 	note_id, parse_err := strconv.ParseInt(id, 0, 64)
