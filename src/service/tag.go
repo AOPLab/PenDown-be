@@ -40,3 +40,12 @@ func GetTagsByBatch(tagIds *[]int64) (*[]model.Tag, error) {
 	}
 	return &tags, nil
 }
+
+func FindTag(tag_id int64) (*model.Tag, error) {
+
+	var tag model.Tag
+	if res := persistence.DB.Where("ID = ?", tag_id).First(&tag); res.Error != nil {
+		return nil, res.Error
+	}
+	return &tag, nil
+}
