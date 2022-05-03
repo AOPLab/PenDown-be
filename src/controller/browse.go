@@ -19,6 +19,7 @@ type NoteBrief struct {
 	Saved_cnt        int64     `json:"saved_cnt"`
 	Note_type        string    `json:"note_type"`
 	Preview_filename string    `json:"preview_filename"`
+	Preview_url      string    `json:"preview_url"`
 	CreatedAt        time.Time `json:"created_at"`
 }
 
@@ -68,6 +69,11 @@ func GetHotNote(c *gin.Context) {
 			return
 		}
 		note_output.Saved_cnt = cnt
+		if note.Preview_filename != "" {
+			path := strconv.Itoa(int(note.ID)) + "/" + note.Preview_filename
+			file_url, _ := service.SignedFileUrl(path)
+			note_output.Preview_url = file_url
+		}
 		note_outputs = append(note_outputs, note_output)
 	}
 	if note_outputs == nil {
@@ -142,6 +148,11 @@ func GetNoteByTag(c *gin.Context) {
 			return
 		}
 		note_output.Saved_cnt = cnt
+		if note.Preview_filename != "" {
+			path := strconv.Itoa(int(note.ID)) + "/" + note.Preview_filename
+			file_url, _ := service.SignedFileUrl(path)
+			note_output.Preview_url = file_url
+		}
 		note_outputs = append(note_outputs, note_output)
 	}
 	if note_outputs == nil {
@@ -216,6 +227,11 @@ func GetNoteByCourse(c *gin.Context) {
 			return
 		}
 		note_output.Saved_cnt = cnt
+		if note.Preview_filename != "" {
+			path := strconv.Itoa(int(note.ID)) + "/" + note.Preview_filename
+			file_url, _ := service.SignedFileUrl(path)
+			note_output.Preview_url = file_url
+		}
 		note_outputs = append(note_outputs, note_output)
 	}
 	if note_outputs == nil {
@@ -289,6 +305,11 @@ func GetNotesByUserIdPublic(c *gin.Context) {
 			return
 		}
 		note_output.Saved_cnt = cnt
+		if note.Preview_filename != "" {
+			path := strconv.Itoa(int(note.ID)) + "/" + note.Preview_filename
+			file_url, _ := service.SignedFileUrl(path)
+			note_output.Preview_url = file_url
+		}
 		note_outputs = append(note_outputs, note_output)
 	}
 	if note_outputs == nil {
@@ -364,6 +385,11 @@ func GetOwnNotes(c *gin.Context) {
 				return
 			}
 			note_output.Saved_cnt = cnt
+			if note.Preview_filename != "" {
+				path := strconv.Itoa(int(note.ID)) + "/" + note.Preview_filename
+				file_url, _ := service.SignedFileUrl(path)
+				note_output.Preview_url = file_url
+			}
 			note_outputs = append(note_outputs, note_output)
 		}
 		if note_outputs == nil {
@@ -417,6 +443,11 @@ func GetOwnNotes(c *gin.Context) {
 				return
 			}
 			note_output.Saved_cnt = cnt
+			if note.Note.Preview_filename != "" {
+				path := strconv.Itoa(int(note.ID)) + "/" + note.Note.Preview_filename
+				file_url, _ := service.SignedFileUrl(path)
+				note_output.Preview_url = file_url
+			}
 			note_outputs = append(note_outputs, note_output)
 		}
 		if note_outputs == nil {
@@ -469,6 +500,11 @@ func GetOwnNotes(c *gin.Context) {
 				return
 			}
 			note_output.Saved_cnt = cnt
+			if note.Note.Preview_filename != "" {
+				path := strconv.Itoa(int(note.ID)) + "/" + note.Note.Preview_filename
+				file_url, _ := service.SignedFileUrl(path)
+				note_output.Preview_url = file_url
+			}
 			note_outputs = append(note_outputs, note_output)
 		}
 		if note_outputs == nil {

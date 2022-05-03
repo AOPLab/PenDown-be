@@ -43,6 +43,7 @@ type NoteOutput struct {
 	Bean                int       `json:"bean"`
 	Pdf_filename        string    `json:"pdf_filename"`
 	Preview_filename    string    `json:"preview_filename"`
+	Preview_url         string    `json:"preview_url"`
 	Goodnotes_filename  string    `json:"goodnotes_filename"`
 	Notability_filename string    `json:"notability_filename"`
 	CreatedAt           time.Time `json:"created_at"`
@@ -237,6 +238,13 @@ func GetNote(c *gin.Context) {
 		return
 	}
 	note_output.Saved_cnt = cnt
+
+	// signed preview file url
+	if note.Preview_filename != "" {
+		path := strconv.Itoa(int(note.ID)) + "/" + note.Preview_filename
+		file_url, _ := service.SignedFileUrl(path)
+		note_output.Preview_url = file_url
+	}
 
 	if c.GetHeader("Authorization") != "" {
 		// Get note with filename
