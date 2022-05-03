@@ -53,7 +53,7 @@ func GetNoteSales(c *gin.Context) {
 		})
 		return
 	}
-	sales, err := service.FindSales(note_id)
+	cnt, revenue, err := service.FindSales(note_id)
 
 	if err != nil {
 		if err.Error() == "record not found" {
@@ -69,8 +69,8 @@ func GetNoteSales(c *gin.Context) {
 		}
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"sales_count": sales.cnt,
-			"revenue":     sales.revenue,
+			"sales_count": cnt,
+			"revenue":     revenue,
 		})
 	}
 	return
