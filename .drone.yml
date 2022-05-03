@@ -12,6 +12,8 @@ steps:
       - pwd
       - cp /home/imaoplab/secret/.env .
       - cp /home/imaoplab/secret/pendown-firebase.json .
+      - cp -f /home/imaoplab/secret/go.mod .
+      - cp -f /home/imaoplab/secret/go.sum .
       - docker build -t pendown-be .
 
   - name: run
@@ -22,3 +24,6 @@ steps:
 trigger:
   branch:
     - main
+  event:
+    exclude:
+      - pull_request

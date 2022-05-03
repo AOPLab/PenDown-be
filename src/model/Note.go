@@ -15,7 +15,7 @@ type Note struct {
 	Description         string    `json:"description"`
 	View_cnt            int64     `gorm:"default:0" json:"view_cnt"`
 	Is_template         bool      `gorm:"default:false" json:"is_template"`
-	Course_id           int64     `json:"course_id"`
+	Course_id           int64     `gorm:"default:null" json:"course_id"`
 	Bean                int       `gorm:"default:0" json:"bean"`
 	Pdf_filename        string    `gorm:"default:null" json:"pdf_filename"`
 	Preview_filename    string    `gorm:"default:null" json:"preview_filename"`

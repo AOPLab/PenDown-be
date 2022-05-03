@@ -15,6 +15,7 @@ func Routes(r *gin.Engine) {
 		public.POST("/account", controller.Register)
 		public.POST("/login", controller.Login)
 		public.POST("/login/google", controller.GoogleLogin)
+		public.GET("/search", controller.Search)
 	}
 
 	public_account := r.Group("/api/account")
@@ -23,6 +24,7 @@ func Routes(r *gin.Engine) {
 		public_account.GET("/:account_id/followers", controller.GetFollowers)
 		public_account.GET("/:account_id/followings", controller.GetFollowing)
 		public_account.GET("/:account_id/following/:following_id", controller.GetFollow)
+		public_account.GET("/:account_id/notes", controller.GetNotesByUserIdPublic)
 	}
 
 	public_tag := r.Group("/api/tag")
@@ -39,6 +41,8 @@ func Routes(r *gin.Engine) {
 		public_note.GET("/hot", controller.GetHotNote)
 		public_note.GET("/tag/:tag_id", controller.GetNoteByTag)
 		public_note.GET("/course/:course_id", controller.GetNoteByCourse)
+		public_note.GET("/:note_id/sales", controller.GetNoteSales)
+
 	}
 
 	public_school := r.Group("/api/school")
@@ -77,6 +81,7 @@ func Routes(r *gin.Engine) {
 		authorized_account.PUT("/:account_id/pass_hash", controller.EditPassword)
 		authorized_account.POST("/:account_id/follow", controller.AddFollow)
 		authorized_account.DELETE("/:account_id/follow", controller.DeleteFollow)
+		authorized_account.GET("/:account_id/selfnotes", controller.GetOwnNotes)
 	}
 
 	authorized_note := r.Group("/api/notes")
@@ -94,6 +99,7 @@ func Routes(r *gin.Engine) {
 		authorized_note.DELETE("/:note_id/save", controller.DeleteSave)
 		authorized_note.PATCH("/:note_id", controller.EditNote)
 		authorized_note.DELETE("/:note_id", controller.DeleteNote)
+		authorized_note.POST("/:note_id/buy", controller.BuyNote)
 	}
 
 	authorized_file := r.Group("/api/file")

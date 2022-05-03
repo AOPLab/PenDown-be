@@ -90,3 +90,19 @@ func VerifyGoogleLogin(google_id string) (*model.User, error) {
 
 	return user, nil
 }
+
+type SearchUserOutput struct {
+	ID       int64  `json:"user_id"`
+	Username string `json:"username"`
+}
+
+func SearchUser(q string, offset int, limit int) ([]SearchUserOutput, int64, error) {
+	var results []SearchUserOutput
+	var count int64
+	searchName := "%" + q + "%"
+	if err := persistence.DB.Limit(limit).Offset(offset).Table("users").Select("ID, username").Where("username LIKE ?", searchName).Find(&results).Error; err != nil {
+		return results, 0, err
+	}
+	persistence.DB.Table("users").Where("username LIKE ?", searchName).Count(&count)
+	return results, count, nil
+}
