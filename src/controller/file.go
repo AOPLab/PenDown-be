@@ -73,8 +73,8 @@ func UploadNotability(c *gin.Context) {
 
 	// Generate file path
 	time := strconv.FormatInt(time.Now().Unix(), 10)
-	filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".note"
-	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
+	filename := time + "_" + randStringRunes(5) + ".note"
+	path := strconv.Itoa(int(note.ID)) + "/" + filename
 	// fmt.Print(path)
 
 	// Upload file
@@ -149,8 +149,8 @@ func UploadGoodnotes(c *gin.Context) {
 
 	// Generate file path
 	time := strconv.FormatInt(time.Now().Unix(), 10)
-	filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".goodnotes"
-	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
+	filename := time + "_" + randStringRunes(5) + ".goodnotes"
+	path := strconv.Itoa(int(note.ID)) + "/" + filename
 	// fmt.Print(path)
 
 	// Upload file
@@ -226,10 +226,10 @@ func UploadPdf(c *gin.Context) {
 
 	// Generate pdf file path
 	time := strconv.FormatInt(time.Now().Unix(), 10)
-	filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".pdf"
-	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
-	preview_filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".jpg"
-	preview_path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + preview_filename
+	filename := time + "_" + randStringRunes(5) + ".pdf"
+	path := strconv.Itoa(int(note.ID)) + "/" + filename
+	preview_filename := time + "_" + randStringRunes(5) + ".jpg"
+	preview_path := strconv.Itoa(int(note.ID)) + "/" + preview_filename
 	// fmt.Print(path)
 
 	// Upload pdf file
@@ -324,8 +324,8 @@ func UploadPreview(c *gin.Context) {
 
 	// Generate preview file path
 	time := strconv.FormatInt(time.Now().Unix(), 10)
-	filename := strconv.Itoa(int(note.ID)) + "_" + time + "_" + randStringRunes(5) + ".jpg"
-	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
+	filename := time + "_" + randStringRunes(5) + ".jpg"
+	path := strconv.Itoa(int(note.ID)) + "/" + filename
 
 	// Upload preview image file
 	upload_err := service.UploadFile(path, blobFile)
@@ -363,15 +363,7 @@ func GetPreviewFile(c *gin.Context) {
 		return
 	}
 
-	note, note_err := service.GetNoteByIdWithCourse(note_id)
-	if note_err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": note_err.Error(),
-		})
-		return
-	}
-
-	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
+	path := strconv.Itoa(int(note_id)) + "/" + filename
 
 	// Check file is image
 	contain := strings.Contains(filename, "jpg")
@@ -414,7 +406,7 @@ func GetNoteFile(c *gin.Context) {
 		return
 	}
 
-	path := strconv.Itoa(int(note.Course.School_id)) + "/" + strconv.Itoa(int(note.Course_id)) + "/" + filename
+	path := strconv.Itoa(int(note.ID)) + "/" + filename
 
 	// check user can download file
 	if note.User_id != user_id && !service.CheckUserBuyNote(user_id, note.ID) {
