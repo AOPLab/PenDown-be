@@ -78,6 +78,8 @@ func GetPrivateProfile(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"account_id":    user.ID,
 			"username":      user.Username,
+			"full_name":     user.Full_name,
+			"email":         user.Email,
 			"description":   user.Description,
 			"status":        user.Status,
 			"bean":          user.Bean,
