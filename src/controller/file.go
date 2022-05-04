@@ -48,7 +48,7 @@ func UploadNotability(c *gin.Context) {
 
 	// Check Content-Type
 	if file.Header.Get("Content-Type") != "application/octet-stream" {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "FileTypeError",
 		})
 		return
@@ -124,7 +124,7 @@ func UploadGoodnotes(c *gin.Context) {
 
 	// Check Content-Type
 	if file.Header.Get("Content-Type") != "application/octet-stream" {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "FileTypeError",
 		})
 		return
@@ -200,7 +200,7 @@ func UploadPdf(c *gin.Context) {
 
 	// Check Content-Type
 	if file.Header.Get("Content-Type") != "application/pdf" {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "FileTypeError",
 		})
 		return
@@ -298,7 +298,7 @@ func UploadPreview(c *gin.Context) {
 
 	// Check Content-Type
 	if file.Header.Get("Content-Type") != "image/jpeg" {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "FileTypeError",
 		})
 		return
