@@ -22,7 +22,7 @@ func BuyNote(c *gin.Context) {
 		return
 	}
 
-	err := service.BuyNote(user_id, note_id)
+	note, err := service.BuyNote(user_id, note_id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -31,7 +31,9 @@ func BuyNote(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"is_bought": true,
+		"pdf_filename":        note.Preview_filename,
+		"notability_filename": note.Notability_filename,
+		"goodnotes_filename":  note.Goodnotes_filename,
 	})
 
 	return

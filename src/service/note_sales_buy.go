@@ -9,35 +9,34 @@ import (
 	"gorm.io/gorm"
 )
 
-func BuyNote(user_id int64, note_id int64) error {
+func BuyNote(user_id int64, note_id int64) (*model.Note, error) {
 	// Able to buy if enough beans
 	var user_bean int64
 	var price_bean int64
 	user, find_err := findUserByAccountID(user_id)
 	if find_err != nil {
-		return find_err
+		return nil, find_err
 	}
 	user_bean = user.Bean
 
-	price_bean, err := findBeansByNoteID(note_id)
-	if err != nil {
-		return err
+	note := &model.Note{
+		ID: note_id,
+	}
+	db_err := persistence.DB.Where(&note).First(&note).Error
+	if db_err != nil {
+		return nil, db_err
 	}
 
+	price_bean = int64(note.Bean)
+
 	if user_bean < price_bean {
-		return errors.New("No enough beans!")
+		return nil, errors.New("No enough beans!")
 	}
 
 	// Find seller by note ID
 	seller_id, find_err := findUserByNoteID(note_id)
 	if find_err != nil {
-		return find_err
-	}
-
-	// Update both's beans, seller get 80% of the price
-	err = BeanTransaction(seller_id, user_id, price_bean)
-	if err != nil {
-		return err
+		return nil, find_err
 	}
 
 	// New Download tuple
@@ -45,12 +44,18 @@ func BuyNote(user_id int64, note_id int64) error {
 		User_id: user_id,
 		Note_id: note_id,
 	}
-	db_err := persistence.DB.Model(&model.Download{}).Create(&buy).Error
+	db_err = persistence.DB.Model(&model.Download{}).Create(&buy).Error
 	if db_err != nil {
-		return db_err
-	} else {
-		return nil
+		return nil, db_err
 	}
+
+	// Update both's beans, seller get 80% of the price
+	err := BeanTransaction(seller_id, user_id, price_bean)
+	if err != nil {
+		return nil, err
+	}
+
+	return note, nil
 }
 
 func FindSales(note_id int64) (int64, int64, error) {
