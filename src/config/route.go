@@ -71,6 +71,7 @@ func Routes(r *gin.Engine) {
 				"user_id": c.MustGet("user_id"),
 			})
 		})
+		authorized.GET("/file", controller.GetNoteFile)
 	}
 
 	authorized_account := r.Group("/api/account")
@@ -102,9 +103,9 @@ func Routes(r *gin.Engine) {
 		authorized_note.POST("/:note_id/buy", controller.BuyNote)
 	}
 
-	authorized_file := r.Group("/api/file")
-	authorized_file.Use(auth.AuthRequired)
-	{
-		authorized_file.GET("/", controller.GetNoteFile)
-	}
+	// authorized_file := r.Group("/api/file")
+	// authorized_file.Use(auth.AuthRequired)
+	// {
+	// 	authorized_file.GET("/", controller.GetNoteFile)
+	// }
 }
