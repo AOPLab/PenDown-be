@@ -87,6 +87,14 @@ func Search(c *gin.Context) {
 			})
 			return
 		}
+		if result == nil {
+			var output [0]int
+			c.JSON(http.StatusOK, gin.H{
+				"courses":   output,
+				"total_cnt": total_cnt,
+			})
+			return
+		}
 		c.JSON(http.StatusOK, gin.H{
 			"courses":   result,
 			"total_cnt": total_cnt,
