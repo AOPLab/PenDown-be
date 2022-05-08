@@ -1,8 +1,11 @@
 package service
 
 import (
+	"time"
+
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
+	"gorm.io/gorm"
 )
 
 type EditNoteInput struct {
@@ -10,19 +13,32 @@ type EditNoteInput struct {
 	Description string `json:"description" binding:"required"`
 	Course_id   int64  `json:"course_id" binding:"required"`
 	Bean        int    `json:"bean" binding:"required"`
-	Is_template bool   `json:"is_template" binding:"required"`
+	Is_template bool   `json:"is_template"`
 }
 
 func EditNote(user_id int64, note_id int64, form EditNoteInput) error {
-	// myNote, myNote_err := GetMyNote(user_id, note_id)
-	// if myNote_err != nil {
-	// 	return myNote_err
-	// }
-	// if !myNote {
-	// 	return errors.New("Note doesn't exist.")
-	// }
+	var note model.Note
+	res := persistence.DB.Where("User_id = ? AND ID = ?", user_id, note_id).First(&note)
+	if res.Error != nil {
+		return res.Error
+	}
 
-	err := persistence.DB.Model(&model.Note{}).Where("User_id = ? AND ID = ?", user_id, note_id).Updates(map[string]interface{}{"Title": form.Title, "Description": form.Description, "Course_id": form.Course_id, "Bean": form.Bean, "Is_template": form.Is_template}).Error
+	courseIdBefore := note.Course_id
+	courseIdAfter := form.Course_id
+	if courseIdBefore != courseIdAfter {
+		courseBefore := &model.Course{ID: courseIdBefore}
+		db_err := persistence.DB.Model(&courseBefore).Update("Note_cnt", gorm.Expr("Note_cnt - ?", 1)).Error
+		if db_err != nil {
+			return db_err
+		}
+		courseAfter := &model.Course{ID: courseIdAfter}
+		db_err = persistence.DB.Model(&courseAfter).Update("Note_cnt", gorm.Expr("Note_cnt + ?", 1)).Update("Last_updated_time", time.Now()).Error
+		if db_err != nil {
+			return db_err
+		}
+	}
+
+	err := res.Updates(map[string]interface{}{"Title": form.Title, "Description": form.Description, "Course_id": form.Course_id, "Bean": form.Bean, "Is_template": form.Is_template}).Error
 	if err != nil {
 		return err
 	} else {
@@ -31,14 +47,6 @@ func EditNote(user_id int64, note_id int64, form EditNoteInput) error {
 }
 
 func DeleteNote(user_id int64, note_id int64) error {
-	// myNote, myNote_err := GetMyNote(user_id, note_id)
-	// if myNote_err != nil {
-	// 	return myNote_err
-	// }
-	// if !myNote {
-	// 	return errors.New("Note doesn't exist.")
-	// }
-
 	db_err := persistence.DB.Unscoped().Where("User_id = ? AND ID = ?", user_id, note_id).Delete(&model.Note{}).Error
 	if db_err != nil {
 		return db_err
