@@ -14,6 +14,6 @@ type Course struct {
 	Course_name       string    `gorm:"not null" json:"course_name"`
 	View_cnt          int64     `gorm:"default:0" json:"view_cnt"`
 	Note_cnt          int64     `gorm:"default:0" json:"note_cnt"`
-	Last_updated_time time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"last_updated_time"`
+	Last_updated_time time.Time `gorm:"default:null" json:"last_updated_time"`
 	School            School    `gorm:"foreignKey:School_id;constraint:OnDelete:CASCADE;"`
 }

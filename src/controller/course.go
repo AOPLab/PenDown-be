@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/AOPLab/PenDown-be/src/service"
 
@@ -10,10 +11,12 @@ import (
 )
 
 type CourseResult struct {
-	School_id   int64  `json:"school_id"`
-	Course_id   int64  `json:"course_id"`
-	Course_name string `json:"course_name"`
-	Course_no   string `json:"course_no"`
+	School_id         int64     `json:"school_id"`
+	Course_id         int64     `json:"course_id"`
+	Course_name       string    `json:"course_name"`
+	Course_no         string    `json:"course_no"`
+	Note_cnt          int64     `json:"note_cnt"`
+	Last_updated_time time.Time `json:"last_updated_time"`
 }
 
 // GET School's Course
@@ -37,10 +40,12 @@ func GetSchoolCourse(c *gin.Context) {
 		var interfaceSlice []interface{} = make([]interface{}, len(schoolCourse))
 		for i, course := range schoolCourse {
 			courseInfo := &CourseResult{
-				School_id:   course.School_id,
-				Course_id:   course.ID,
-				Course_name: course.Course_name,
-				Course_no:   course.Course_no,
+				School_id:         course.School_id,
+				Course_id:         course.ID,
+				Course_name:       course.Course_name,
+				Course_no:         course.Course_no,
+				Note_cnt:          course.Note_cnt,
+				Last_updated_time: course.Last_updated_time,
 			}
 			interfaceSlice[i] = courseInfo
 		}
@@ -78,10 +83,12 @@ func GetCourse(c *gin.Context) {
 		}
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"course_id":   course.ID,
-			"course_no":   course.Course_no,
-			"course_name": course.Course_name,
-			"school_id":   course.School_id,
+			"course_id":         course.ID,
+			"course_no":         course.Course_no,
+			"course_name":       course.Course_name,
+			"school_id":         course.School_id,
+			"note_cnt":          course.Note_cnt,
+			"last_updated_time": course.Last_updated_time,
 		})
 	}
 	return
