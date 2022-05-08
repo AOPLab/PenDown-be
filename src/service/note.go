@@ -6,6 +6,7 @@ import (
 
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
+	"gorm.io/gorm"
 )
 
 func GetNoteTag(note_id int64) (*[]model.NoteTag, error) {
@@ -58,6 +59,11 @@ func AddNote(user_id int64, title string, description string, is_template bool, 
 
 	if course_id != nil {
 		note.Course_id = *course_id
+		courseUpdate := &model.Course{ID: *course_id}
+		err := persistence.DB.Model(&courseUpdate).Update("Note_cnt", gorm.Expr("Note_cnt + ?", 1)).Update("Last_updated_time", time.Now()).Error
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	db_err := persistence.DB.Model(&model.Note{}).Create(&note).Error
