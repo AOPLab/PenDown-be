@@ -30,6 +30,14 @@ func findUserByAccountID(account_id int64) (*model.User, error) {
 	return &user, nil
 }
 
+func GetUserNameByUserId(user_id int64) (string, error) {
+	var user model.User
+	if res := persistence.DB.Where("ID = ?", user_id).First(&user); res.Error != nil {
+		return "", res.Error
+	}
+	return user.Username, nil
+}
+
 func FindPublicProfile(account_id int64) (*model.User, int64, int64, int64, error) {
 	var followers_num int64
 	var following_num int64

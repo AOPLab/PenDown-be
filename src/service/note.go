@@ -301,7 +301,7 @@ type NoteOutput struct {
 // string type: all-popular, notability-popular, goodnotes-popular, all-recent, notability-recent, goodnotes-recent
 func GetNotesByTag(tag_id int64, filter string, offset int64) ([]NoteOutput, int64, error) {
 	// Join NoteTag and Note
-	size := 6
+	size := 12
 	var results []NoteOutput
 	var count int64
 
@@ -358,7 +358,7 @@ func GetNotesByTag(tag_id int64, filter string, offset int64) ([]NoteOutput, int
 // string type: all-popular, notability-popular, goodnotes-popular, all-recent, notability-recent, goodnotes-recent
 func GetNotesByCourse(course_id int64, filter string, offset int64) ([]model.Note, int64, error) {
 	// Join NoteTag and Note
-	size := 6
+	size := 12
 	var notes []model.Note
 	var count int64
 
@@ -479,7 +479,7 @@ func GetNotesByUserId(user_id int64, filter string, offset int64) ([]model.Note,
 // uploaded/saved/library
 // string type: all, notability, goodnotes
 func GetOwnUploadedNotes(user_id int64, filter string, offset int64) ([]model.Note, int64, error) {
-	size := 6
+	size := 12
 	var notes []model.Note
 	var count int64
 
@@ -516,7 +516,7 @@ func GetOwnUploadedNotes(user_id int64, filter string, offset int64) ([]model.No
 // uploaded/saved/library
 // string type: all, notability, goodnotes
 func GetOwnSavedNotes(user_id int64, filter string, offset int64) ([]model.Saved, int64, error) {
-	size := 6
+	size := 12
 	var notes []model.Saved
 	var count int64
 
@@ -553,7 +553,7 @@ func GetOwnSavedNotes(user_id int64, filter string, offset int64) ([]model.Saved
 // uploaded/saved/library
 // string type: all, notability, goodnotes
 func GetOwnLibraryNotes(user_id int64, filter string, offset int64) ([]model.Download, int64, error) {
-	size := 6
+	size := 12
 	var notes []model.Download
 	var count int64
 
