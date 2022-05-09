@@ -12,8 +12,8 @@ type EditNoteInput struct {
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description" binding:"required"`
 	Course_id   int64  `json:"course_id" binding:"required"`
-	Bean        int    `json:"bean" binding:"required"`
-	Is_template bool   `json:"is_template"`
+	Bean        *int   `json:"bean" binding:"required"`
+	Is_template *bool  `json:"is_template" binding:"required"`
 }
 
 func EditNote(user_id int64, note_id int64, form EditNoteInput) error {

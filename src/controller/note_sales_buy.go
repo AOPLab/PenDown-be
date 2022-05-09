@@ -31,7 +31,7 @@ func BuyNote(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"pdf_filename":        note.Preview_filename,
+		"pdf_filename":        note.Pdf_filename,
 		"notability_filename": note.Notability_filename,
 		"goodnotes_filename":  note.Goodnotes_filename,
 	})
