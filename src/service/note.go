@@ -71,6 +71,7 @@ func AddNote(user_id int64, title string, description string, is_template bool, 
 		return nil, db_err
 	}
 
+	addUserBean(user_id)
 	return note, nil
 }
 
@@ -591,4 +592,13 @@ func GetOwnLibraryNotes(user_id int64, filter string, offset int64) ([]model.Dow
 	default:
 		return nil, 0, errors.New("NoFilter")
 	}
+}
+
+func addUserBean(account_id int64) error {
+	user := &model.User{ID: account_id}
+	db_err := persistence.DB.Model(&user).Update("Bean", gorm.Expr("Bean + ?", 30)).Error
+	if db_err != nil {
+		return db_err
+	}
+	return nil
 }
