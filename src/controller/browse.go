@@ -451,7 +451,7 @@ func GetOwnNotes(c *gin.Context) {
 			}
 			note_output.Saved_cnt = cnt
 			if note.Note.Preview_filename != "" {
-				path := strconv.Itoa(int(note.ID)) + "/" + note.Note.Preview_filename
+				path := strconv.Itoa(int(note.Note_id)) + "/" + note.Note.Preview_filename
 				file_url, _ := service.SignedFileUrl(path)
 				note_output.Preview_url = file_url
 			}
@@ -515,7 +515,7 @@ func GetOwnNotes(c *gin.Context) {
 			}
 			note_output.Saved_cnt = cnt
 			if note.Note.Preview_filename != "" {
-				path := strconv.Itoa(int(note.ID)) + "/" + note.Note.Preview_filename
+				path := strconv.Itoa(int(note.Note_id)) + "/" + note.Note.Preview_filename
 				file_url, _ := service.SignedFileUrl(path)
 				note_output.Preview_url = file_url
 			}
