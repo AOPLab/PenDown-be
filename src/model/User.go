@@ -26,5 +26,5 @@ type User struct {
 	Password    string     `json:"password_hash"`
 	Description string     `json:"description"`
 	Status      statusType `sql:"status_type" gorm:"default:'BASIC';not null" json:"status"`
-	Bean        int64      `gorm:"default:0" json:"bean"`
+	Bean        int64      `gorm:"default:150" json:"bean"`
 }
