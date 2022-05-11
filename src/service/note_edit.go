@@ -11,7 +11,7 @@ import (
 type EditNoteInput struct {
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description" binding:"required"`
-	Course_id   int64  `json:"course_id" binding:"required"`
+	Course_id   *int64 `json:"course_id"`
 	Bean        *int   `json:"bean" binding:"required"`
 	Is_template *bool  `json:"is_template" binding:"required"`
 }
@@ -25,20 +25,48 @@ func EditNote(user_id int64, note_id int64, form EditNoteInput) error {
 
 	courseIdBefore := note.Course_id
 	courseIdAfter := form.Course_id
-	if courseIdBefore != courseIdAfter {
-		courseBefore := &model.Course{ID: courseIdBefore}
-		db_err := persistence.DB.Model(&courseBefore).Update("Note_cnt", gorm.Expr("Note_cnt - ?", 1)).Error
-		if db_err != nil {
-			return db_err
+
+	if courseIdBefore != 0 {
+		if courseIdAfter != nil {
+			if courseIdBefore != *courseIdAfter {
+				courseBefore := &model.Course{ID: courseIdBefore}
+				db_err := persistence.DB.Model(&courseBefore).Update("Note_cnt", gorm.Expr("Note_cnt - ?", 1)).Error
+				if db_err != nil {
+					return db_err
+				}
+				courseAfter := &model.Course{ID: *courseIdAfter}
+				db_err = persistence.DB.Model(&courseAfter).Update("Note_cnt", gorm.Expr("Note_cnt + ?", 1)).Update("Last_updated_time", time.Now()).Error
+				if db_err != nil {
+					return db_err
+				}
+			}
+		} else {
+			courseBefore := &model.Course{ID: courseIdBefore}
+			db_err := persistence.DB.Model(&courseBefore).Update("Note_cnt", gorm.Expr("Note_cnt - ?", 1)).Error
+			if db_err != nil {
+				return db_err
+			}
 		}
-		courseAfter := &model.Course{ID: courseIdAfter}
-		db_err = persistence.DB.Model(&courseAfter).Update("Note_cnt", gorm.Expr("Note_cnt + ?", 1)).Update("Last_updated_time", time.Now()).Error
-		if db_err != nil {
-			return db_err
+	} else {
+		if courseIdAfter != nil {
+			courseAfter := &model.Course{ID: *courseIdAfter}
+			db_err := persistence.DB.Model(&courseAfter).Update("Note_cnt", gorm.Expr("Note_cnt + ?", 1)).Update("Last_updated_time", time.Now()).Error
+			if db_err != nil {
+				return db_err
+			}
 		}
 	}
 
-	err := res.Updates(map[string]interface{}{"Title": form.Title, "Description": form.Description, "Course_id": form.Course_id, "Bean": form.Bean, "Is_template": form.Is_template}).Error
+	if courseIdAfter != nil {
+		err := res.Updates(map[string]interface{}{"Title": form.Title, "Description": form.Description, "Course_id": *form.Course_id, "Bean": form.Bean, "Is_template": form.Is_template}).Error
+		if err != nil {
+			return err
+		} else {
+			return nil
+		}
+	}
+
+	err := res.Updates(map[string]interface{}{"Title": form.Title, "Description": form.Description, "Course_id": nil, "Bean": form.Bean, "Is_template": form.Is_template}).Error
 	if err != nil {
 		return err
 	} else {
