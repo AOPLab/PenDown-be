@@ -149,7 +149,7 @@ func GetNoteByTag(c *gin.Context) {
 		}
 		note_output.Saved_cnt = cnt
 		if note.Preview_filename != "" {
-			path := strconv.Itoa(int(note.ID)) + "/" + note.Preview_filename
+			path := strconv.Itoa(int(note.Note_ID)) + "/" + note.Preview_filename
 			file_url, _ := service.SignedFileUrl(path)
 			note_output.Preview_url = file_url
 		}
