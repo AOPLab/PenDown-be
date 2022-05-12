@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
 )
@@ -24,11 +26,13 @@ func FindCourse(course_id int64) (*model.Course, error) {
 }
 
 type SearchCourseOutput struct {
-	ID          int64  `json:"course_id"`
-	Course_no   string `json:"course_no"`
-	Course_name string `json:"course_name"`
-	School_name string `json:"school_name"`
-	School_ID   int64  `json:"school_id"`
+	ID                int64     `json:"course_id"`
+	Course_no         string    `json:"course_no"`
+	Course_name       string    `json:"course_name"`
+	School_name       string    `json:"school_name"`
+	School_ID         int64     `json:"school_id"`
+	Note_cnt          int64     `json:"note_cnt"`
+	Last_updated_time time.Time `json:"last_updated_time"`
 }
 
 func SearchCourse(q string, offset int, limit int) ([]*SearchCourseOutput, int64, error) {
@@ -46,6 +50,8 @@ func SearchCourse(q string, offset int, limit int) ([]*SearchCourseOutput, int64
 		result.Course_name = course.Course_name
 		result.School_ID = course.School_id
 		result.School_name = course.School.School_name
+		result.Note_cnt = course.Note_cnt
+		result.Last_updated_time = course.Last_updated_time
 		results = append(results, &result)
 	}
 	persistence.DB.Table("courses").Where("course_name LIKE ?", searchName).Or("course_no LIKE ?", searchName).Count(&count)
