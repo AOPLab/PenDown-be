@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strings"
 	"time"
 
 	"github.com/AOPLab/PenDown-be/src/model"
@@ -39,8 +40,8 @@ func SearchCourse(q string, offset int, limit int) ([]*SearchCourseOutput, int64
 	var results []*SearchCourseOutput
 	var count int64
 	var schoolCourse []*model.Course
-	searchName := "%" + q + "%"
-	if err := persistence.DB.Limit(limit).Offset(offset).Table("courses").Preload("School").Where("course_name LIKE ?", searchName).Or("course_no LIKE ?", searchName).Find(&schoolCourse).Error; err != nil {
+	searchName := "%" + strings.ToLower(q) + "%"
+	if err := persistence.DB.Limit(limit).Offset(offset).Table("courses").Preload("School").Where("lower(course_name) LIKE ?", searchName).Or("lower(course_no) LIKE ?", searchName).Find(&schoolCourse).Error; err != nil {
 		return results, 0, err
 	}
 	for _, course := range schoolCourse {
@@ -54,6 +55,6 @@ func SearchCourse(q string, offset int, limit int) ([]*SearchCourseOutput, int64
 		result.Last_updated_time = course.Last_updated_time
 		results = append(results, &result)
 	}
-	persistence.DB.Table("courses").Where("course_name LIKE ?", searchName).Or("course_no LIKE ?", searchName).Count(&count)
+	persistence.DB.Table("courses").Where("lower(course_name) LIKE ?", searchName).Or("lower(course_no) LIKE ?", searchName).Count(&count)
 	return results, count, nil
 }

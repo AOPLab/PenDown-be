@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/AOPLab/PenDown-be/src/model"
@@ -191,24 +192,24 @@ func SearchNote(q string, offset int, limit int, note_type string) ([]SearchNote
 	var results []SearchNoteOutput
 	var count int64
 	count = 0
-	searchName := "%" + q + "%"
+	searchName := "%" + strings.ToLower(q) + "%"
 	selectField := "notes.ID, notes.user_id, users.username, notes.title, notes.view_cnt, notes.preview_filename, notes.notability_filename, notes.goodnotes_filename, notes.created_at"
 	switch note_type {
 	case "all":
-		if err := persistence.DB.Limit(limit).Offset(offset).Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("notes.title LIKE ?", searchName).Find(&results).Error; err != nil {
+		if err := persistence.DB.Limit(limit).Offset(offset).Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("lower(notes.title) LIKE ?", searchName).Find(&results).Error; err != nil {
 			return results, 0, err
 		}
-		persistence.DB.Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("notes.title LIKE ?", searchName).Count(&count)
+		persistence.DB.Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("lower(notes.title) LIKE ?", searchName).Count(&count)
 	case "notability":
-		if err := persistence.DB.Limit(limit).Offset(offset).Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("notes.title LIKE ?", searchName).Where("notability_filename IS NOT NULL").Find(&results).Error; err != nil {
+		if err := persistence.DB.Limit(limit).Offset(offset).Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("lower(notes.title) LIKE ?", searchName).Where("notability_filename IS NOT NULL").Find(&results).Error; err != nil {
 			return results, 0, err
 		}
-		persistence.DB.Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("notes.title LIKE ?", searchName).Where("notability_filename IS NOT NULL").Count(&count)
+		persistence.DB.Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("lower(notes.title) LIKE ?", searchName).Where("notability_filename IS NOT NULL").Count(&count)
 	case "goodnotes":
-		if err := persistence.DB.Limit(limit).Offset(offset).Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("notes.title LIKE ?", searchName).Where("goodnotes_filename IS NOT NULL").Find(&results).Error; err != nil {
+		if err := persistence.DB.Limit(limit).Offset(offset).Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("lower(notes.title) LIKE ?", searchName).Where("goodnotes_filename IS NOT NULL").Find(&results).Error; err != nil {
 			return results, 0, err
 		}
-		persistence.DB.Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("notes.title LIKE ?", searchName).Where("goodnotes_filename IS NOT NULL").Count(&count)
+		persistence.DB.Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("lower(notes.title) LIKE ?", searchName).Where("goodnotes_filename IS NOT NULL").Count(&count)
 	default:
 		break
 	}
@@ -222,24 +223,24 @@ func SearchTemplate(q string, offset int, limit int, note_type string) ([]Search
 	var results []SearchNoteOutput
 	var count int64
 	count = 0
-	searchName := "%" + q + "%"
+	searchName := "%" + strings.ToLower(q) + "%"
 	selectField := "notes.ID, notes.user_id, users.username, notes.title, notes.view_cnt, notes.preview_filename, notes.notability_filename, notes.goodnotes_filename, notes.created_at"
 	switch note_type {
 	case "all":
-		if err := persistence.DB.Limit(limit).Offset(offset).Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("notes.title LIKE ?", searchName).Where("notes.is_template = ?", true).Find(&results).Error; err != nil {
+		if err := persistence.DB.Limit(limit).Offset(offset).Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("lower(notes.title) LIKE ?", searchName).Where("notes.is_template = ?", true).Find(&results).Error; err != nil {
 			return results, 0, err
 		}
-		persistence.DB.Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("notes.title LIKE ?", searchName).Where("notes.is_template = ?", true).Count(&count)
+		persistence.DB.Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("lower(notes.title) LIKE ?", searchName).Where("notes.is_template = ?", true).Count(&count)
 	case "notability":
-		if err := persistence.DB.Limit(limit).Offset(offset).Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("notes.title LIKE ?", searchName).Where("notability_filename IS NOT NULL").Where("notes.is_template = ?", true).Find(&results).Error; err != nil {
+		if err := persistence.DB.Limit(limit).Offset(offset).Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("lower(notes.title) LIKE ?", searchName).Where("notability_filename IS NOT NULL").Where("notes.is_template = ?", true).Find(&results).Error; err != nil {
 			return results, 0, err
 		}
-		persistence.DB.Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("notes.title LIKE ?", searchName).Where("notability_filename IS NOT NULL").Where("notes.is_template = ?", true).Count(&count)
+		persistence.DB.Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("lower(notes.title) LIKE ?", searchName).Where("notability_filename IS NOT NULL").Where("notes.is_template = ?", true).Count(&count)
 	case "goodnotes":
-		if err := persistence.DB.Limit(limit).Offset(offset).Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("notes.title LIKE ?", searchName).Where("goodnotes_filename IS NOT NULL").Where("notes.is_template = ?", true).Find(&results).Error; err != nil {
+		if err := persistence.DB.Limit(limit).Offset(offset).Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("lower(notes.title) LIKE ?", searchName).Where("goodnotes_filename IS NOT NULL").Where("notes.is_template = ?", true).Find(&results).Error; err != nil {
 			return results, 0, err
 		}
-		persistence.DB.Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("notes.title LIKE ?", searchName).Where("goodnotes_filename IS NOT NULL").Where("notes.is_template = ?", true).Count(&count)
+		persistence.DB.Table("notes").Select(selectField).Joins("JOIN users on notes.user_id = users.id").Where("lower(notes.title) LIKE ?", searchName).Where("goodnotes_filename IS NOT NULL").Where("notes.is_template = ?", true).Count(&count)
 	default:
 		break
 	}

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"strings"
+
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/AOPLab/PenDown-be/src/model"
@@ -99,10 +101,10 @@ type SearchUserOutput struct {
 func SearchUser(q string, offset int, limit int) ([]SearchUserOutput, int64, error) {
 	var results []SearchUserOutput
 	var count int64
-	searchName := "%" + q + "%"
-	if err := persistence.DB.Limit(limit).Offset(offset).Table("users").Select("ID, username").Where("username LIKE ?", searchName).Find(&results).Error; err != nil {
+	searchName := "%" + strings.ToLower(q) + "%"
+	if err := persistence.DB.Limit(limit).Offset(offset).Table("users").Select("ID, username").Where("lower(username) LIKE ?", searchName).Find(&results).Error; err != nil {
 		return results, 0, err
 	}
-	persistence.DB.Table("users").Where("username LIKE ?", searchName).Count(&count)
+	persistence.DB.Table("users").Where("lower(username) LIKE ?", searchName).Count(&count)
 	return results, count, nil
 }

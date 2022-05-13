@@ -1,6 +1,8 @@
 package service
 
 import (
+	"strings"
+
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
 )
@@ -32,10 +34,10 @@ type SearchSchoolOutput struct {
 func SearchSchool(q string, offset int, limit int) ([]SearchSchoolOutput, int64, error) {
 	var results []SearchSchoolOutput
 	var count int64
-	searchName := "%" + q + "%"
-	if err := persistence.DB.Limit(limit).Offset(offset).Table("schools").Select("ID, school_name").Where("school_name LIKE ?", searchName).Find(&results).Error; err != nil {
+	searchName := "%" + strings.ToLower(q) + "%"
+	if err := persistence.DB.Limit(limit).Offset(offset).Table("schools").Select("ID, school_name").Where("lower(school_name) LIKE ?", searchName).Find(&results).Error; err != nil {
 		return results, 0, err
 	}
-	persistence.DB.Table("schools").Where("school_name LIKE ?", searchName).Count(&count)
+	persistence.DB.Table("schools").Where("lower(school_name) LIKE ?", searchName).Count(&count)
 	return results, count, nil
 }
