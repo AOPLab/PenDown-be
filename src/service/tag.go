@@ -58,10 +58,10 @@ type SearchTagOutput struct {
 func SearchTag(q string, offset int, limit int) ([]SearchTagOutput, int64, error) {
 	var results []SearchTagOutput
 	var count int64
-	searchName := "%" + q + "%"
-	if err := persistence.DB.Limit(limit).Offset(offset).Table("tags").Select("ID, tag_name").Where("tag_name LIKE ?", searchName).Find(&results).Error; err != nil {
+	searchName := "%" + strings.ToLower(q) + "%"
+	if err := persistence.DB.Limit(limit).Offset(offset).Table("tags").Select("ID, tag_name").Where("lower(tag_name) LIKE ?", searchName).Find(&results).Error; err != nil {
 		return results, 0, err
 	}
-	persistence.DB.Table("tags").Where("tag_name LIKE ?", searchName).Count(&count)
+	persistence.DB.Table("tags").Where("lower(tag_name) LIKE ?", searchName).Count(&count)
 	return results, count, nil
 }
