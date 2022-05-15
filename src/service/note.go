@@ -527,7 +527,6 @@ func GetOwnSavedNotes(user_id int64, filter string, offset int64) ([]model.Saved
 	size := 12
 	var notes []model.Saved
 	var count int64
-
 	switch filter {
 	case "all":
 		persistence.DB.Model(&model.Saved{}).Where("User_id = ?", user_id).Count(&count)
@@ -538,17 +537,17 @@ func GetOwnSavedNotes(user_id int64, filter string, offset int64) ([]model.Saved
 		}
 		return notes, count, nil
 	case "notability":
-		persistence.DB.Model(&model.Saved{}).Where("User_id = ?", user_id).Where("notability_filename IS NOT NULL").Count(&count)
+		persistence.DB.Table("saveds").Joins("JOIN notes on notes.id = saveds.Note_id").Where("saveds.User_id = ?", user_id).Where("notability_filename IS NOT NULL").Count(&count)
 
-		results := persistence.DB.Order("created_at desc").Limit(size).Offset(int(offset)).Preload("User").Preload("Note").Where("User_id = ?", user_id).Where("notability_filename IS NOT NULL").Find(&notes)
+		results := persistence.DB.Table("saveds").Order("created_at desc").Limit(size).Offset(int(offset)).Joins("JOIN notes on notes.id = saveds.Note_id").Where("saveds.User_id = ?", user_id).Where("notes.notability_filename IS NOT NULL").Preload("User").Preload("Note").Find(&notes)
 		if results.Error != nil {
 			return nil, count, results.Error
 		}
 		return notes, count, nil
 	case "goodnotes":
-		persistence.DB.Model(&model.Saved{}).Where("User_id = ?", user_id).Where("goodnotes_filename IS NOT NULL").Count(&count)
+		persistence.DB.Table("saveds").Joins("JOIN notes on notes.id = saveds.Note_id").Where("saveds.User_id = ?", user_id).Where("goodnotes_filename IS NOT NULL").Count(&count)
 
-		results := persistence.DB.Order("created_at desc").Limit(size).Offset(int(offset)).Preload("User").Preload("Note").Where("User_id = ?", user_id).Where("goodnotes_filename IS NOT NULL").Find(&notes)
+		results := persistence.DB.Table("saveds").Order("created_at desc").Limit(size).Offset(int(offset)).Joins("JOIN notes on notes.id = saveds.Note_id").Where("saveds.User_id = ?", user_id).Where("notes.goodnotes_filename IS NOT NULL").Preload("User").Preload("Note").Find(&notes)
 		if results.Error != nil {
 			return nil, count, results.Error
 		}
@@ -575,9 +574,9 @@ func GetOwnLibraryNotes(user_id int64, filter string, offset int64) ([]model.Dow
 		}
 		return notes, count, nil
 	case "notability":
-		persistence.DB.Model(&model.Download{}).Where("User_id = ?", user_id).Where("notability_filename IS NOT NULL").Count(&count)
+		persistence.DB.Table("downloads").Joins("JOIN notes on notes.id = downloads.Note_id").Where("downloads.User_id = ?", user_id).Where("goodnotes_filename IS NOT NULL").Count(&count)
 
-		results := persistence.DB.Order("created_at desc").Limit(size).Offset(int(offset)).Preload("User").Preload("Note").Where("User_id = ?", user_id).Where("notability_filename IS NOT NULL").Find(&notes)
+		results := persistence.DB.Table("downloads").Order("created_at desc").Limit(size).Offset(int(offset)).Joins("JOIN notes on notes.id = downloads.Note_id").Where("downloads.User_id = ?", user_id).Where("notes.notability_filename IS NOT NULL").Preload("User").Preload("Note").Find(&notes)
 		if results.Error != nil {
 			return nil, count, results.Error
 		}
@@ -585,7 +584,7 @@ func GetOwnLibraryNotes(user_id int64, filter string, offset int64) ([]model.Dow
 	case "goodnotes":
 		persistence.DB.Model(&model.Download{}).Where("User_id = ?", user_id).Where("goodnotes_filename IS NOT NULL").Count(&count)
 
-		results := persistence.DB.Order("created_at desc").Limit(size).Offset(int(offset)).Preload("User").Preload("Note").Where("User_id = ?", user_id).Where("goodnotes_filename IS NOT NULL").Find(&notes)
+		results := persistence.DB.Table("downloads").Order("created_at desc").Limit(size).Offset(int(offset)).Joins("JOIN notes on notes.id = downloads.Note_id").Where("downloads.User_id = ?", user_id).Where("notes.goodnotes_filename IS NOT NULL").Preload("User").Preload("Note").Find(&notes)
 		if results.Error != nil {
 			return nil, count, results.Error
 		}
