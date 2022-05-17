@@ -20,3 +20,7 @@ func InitDB(dsn string) (*gorm.DB, error) {
 
 	return DB, err
 }
+
+func InitTestDB(mock_db *gorm.DB) {
+	DB = mock_db
+}
