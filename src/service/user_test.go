@@ -1,6 +1,8 @@
 package service
 
 import (
+	"database/sql/driver"
+	"errors"
 	"testing"
 
 	"github.com/AOPLab/PenDown-be/src/model"
@@ -34,6 +36,14 @@ var user_101 = &model.User{
 	Description: "",
 	Status:      "BASIC",
 	Bean:        50,
+}
+
+type AnyPassword struct{}
+
+// Match satisfies sqlmock.Argument interface
+func (a AnyPassword) Match(v driver.Value) bool {
+	_, ok := v.(string)
+	return ok
 }
 
 func Test_FindUserByUsername(t *testing.T) {
@@ -108,7 +118,7 @@ func Test_FindUserByAccountID(t *testing.T) {
 	require.Equal(t, user, user_100)
 }
 
-func Test_AddUser(t *testing.T) {
+func Test_AddUser_Case_1(t *testing.T) {
 	// Add note without course
 	mocket.Catcher.Register() // Safe register. Allowed multiple calls to save
 	mocket.Catcher.Logging = false
@@ -128,6 +138,33 @@ func Test_AddUser(t *testing.T) {
 	require.Equal(t, user.Username, user_100.Username)
 	require.Equal(t, user.Full_name, user_100.Full_name)
 	require.Equal(t, user.Email, user_100.Email)
+
+}
+
+func Test_AddUser_Case_2(t *testing.T) {
+	// Add note without course
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening database connection", err)
+	}
+	defer db.Close()
+	gdb, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: db,
+	}), &gorm.Config{})
+
+	persistence.InitTestDB(gdb)
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(
+		`INSERT INTO "users" ("created_at","updated_at","deleted_at","google_id","username","full_name","email","password","description","status","bean") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING "id","id"`).
+		WithArgs(AnyTime{}, AnyTime{}, nil, "", user_100.Username, user_100.Full_name, user_100.Email, AnyPassword{}, "", "BASIC", 150).
+		WillReturnError(errors.New("UsernameExist"))
+	mock.ExpectRollback()
+
+	_, err = AddUser(user_100.Username, user_100.Full_name, user_100.Email, user_100.Password)
+
+	require.Error(t, err)
+	require.Equal(t, err, errors.New("UsernameExist"))
 
 }
 
