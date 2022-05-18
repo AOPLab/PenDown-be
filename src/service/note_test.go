@@ -14,7 +14,6 @@ import (
 )
 
 var test_time, time_err = time.Parse(time.RFC3339, "2022-05-13 03:43:29.278922+00")
-var test_time2, time2_err = time.Parse(time.RFC3339, "0001-01-01 00:00:00")
 
 var course_283 = &model.Course{
 	ID:                283,
@@ -39,7 +38,7 @@ var note_82 = &model.Note{
 	Preview_filename:    "1652413412_G8lgY.jpg",
 	Goodnotes_filename:  "",
 	Notability_filename: "1652413416_9nIyu.note",
-	CreatedAt:           test_time2,
+	CreatedAt:           test_time,
 	Course:              *course_283,
 }
 
