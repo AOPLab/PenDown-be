@@ -58,6 +58,22 @@ var note_1 = &model.Note{
 	CreatedAt:           time.Now(),
 }
 
+var note_2 = &model.Note{
+	ID:                  2,
+	User_id:             10,
+	Title:               "Wifi protocol",
+	Description:         "802.11",
+	Is_template:         false,
+	Bean:                100,
+	Course_id:           310,
+	View_cnt:            0,
+	Pdf_filename:        "",
+	Preview_filename:    "",
+	Goodnotes_filename:  "",
+	Notability_filename: "",
+	CreatedAt:           time.Now(),
+}
+
 func Test_GetNoteByIdWithCourse(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
@@ -125,7 +141,7 @@ func Test_GetUserNoteById(t *testing.T) {
 func Test_AddNote_Case_1(t *testing.T) {
 	// Add note without course
 	mocket.Catcher.Register() // Safe register. Allowed multiple calls to save
-	mocket.Catcher.Logging = true
+	mocket.Catcher.Logging = false
 
 	gdb, err := gorm.Open(postgres.New(postgres.Config{
 		DriverName: mocket.DriverName,
@@ -137,8 +153,8 @@ func Test_AddNote_Case_1(t *testing.T) {
 	// ("created_at","updated_at","deleted_at","user_id","title","description","view_cnt","is_template","bean")
 	// VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "id","course_id","pdf_filename","preview_filename","goodnotes_filename","notability_filename","id"
 	commonReply := []map[string]interface{}{{"id": 1, "course_id": nil, "pdf_filename": "", "preview_filename": "", "goodnotes_filename": "", "notability_filename": ""}}
-	mocket.Catcher.NewMock().OneTime().WithQuery(`INSERT INTO "notes"`).WithReply(commonReply)
-	mocket.Catcher.NewMock().WithQuery(`UPDATE "users" SET "bean"=Bean + 30,"updated_at"=$2 WHERE "users"."deleted_at" IS NULL AND "id" = $3`)
+	mocket.Catcher.NewMock().OneTime().WithQuery(`INSERT INTO "notes"`).WithArgs().WithReply(commonReply)
+	mocket.Catcher.NewMock().WithQuery(`UPDATE "users" SET "bean"=Bean + $1,"updated_at"=$2 WHERE "users"."deleted_at" IS NULL AND "id" = $3`)
 
 	note, err := AddNote(note_1.User_id, note_1.Title, note_1.Description, note_1.Is_template, nil, note_1.Bean)
 
@@ -153,9 +169,39 @@ func Test_AddNote_Case_1(t *testing.T) {
 	require.Equal(t, note.Pdf_filename, note_1.Pdf_filename)
 }
 
+func Test_AddNote_Case_2(t *testing.T) {
+	// Add note with course
+	mocket.Catcher.Register() // Safe register. Allowed multiple calls to save
+	mocket.Catcher.Logging = false
+
+	gdb, err := gorm.Open(postgres.New(postgres.Config{
+		DriverName: mocket.DriverName,
+		DSN:        "host=project:region:instance user=postgres dbname=postgres password=password sslmode=disable",
+	})) // Can be any connection string
+
+	persistence.InitTestDB(gdb)
+
+	commonReply := []map[string]interface{}{{"id": 2, "course_id": note_2.Course_id, "pdf_filename": "", "preview_filename": "", "goodnotes_filename": "", "notability_filename": ""}}
+	mocket.Catcher.NewMock().WithQuery(`UPDATE "courses" SET "note_cnt"=Note_cnt + $1,"updated_at"=$2 WHERE "courses"."deleted_at" IS NULL AND "id" = $3`)
+	mocket.Catcher.NewMock().OneTime().WithQuery(`INSERT INTO "notes"`).WithArgs().WithReply(commonReply)
+	mocket.Catcher.NewMock().WithQuery(`UPDATE "users" SET "bean"=Bean + $1,"updated_at"=$2 WHERE "users"."deleted_at" IS NULL AND "id" = $3`)
+
+	note, err := AddNote(note_2.User_id, note_2.Title, note_2.Description, note_2.Is_template, &note_2.Course_id, note_2.Bean)
+
+	require.NoError(t, err)
+	require.Equal(t, note.ID, note_2.ID)
+	require.Equal(t, note.User_id, note_2.User_id)
+	require.Equal(t, note.Title, note_2.Title)
+	require.Equal(t, note.Description, note_2.Description)
+	require.Equal(t, note.Is_template, note_2.Is_template)
+	require.Equal(t, note.Course_id, note_2.Course_id)
+	require.Equal(t, note.Bean, note_2.Bean)
+	require.Equal(t, note.Pdf_filename, note_2.Pdf_filename)
+}
+
 func Test_UpdatePdfFilename(t *testing.T) {
 	mocket.Catcher.Register() // Safe register. Allowed multiple calls to save
-	mocket.Catcher.Logging = true
+	mocket.Catcher.Logging = false
 
 	gdb, err := gorm.Open(postgres.New(postgres.Config{
 		DriverName: mocket.DriverName,
