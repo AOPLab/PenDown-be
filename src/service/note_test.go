@@ -1,6 +1,8 @@
 package service
 
 import (
+	"database/sql/driver"
+	"errors"
 	"testing"
 	"time"
 
@@ -100,6 +102,19 @@ var note_2 = &model.Note{
 	Goodnotes_filename:  "",
 	Notability_filename: "",
 	CreatedAt:           time.Now(),
+}
+
+var download_1 = &model.Download{
+	User_id: 12,
+	Note_id: 82,
+}
+
+type AnyTime struct{}
+
+// Match satisfies sqlmock.Argument interface
+func (a AnyTime) Match(v driver.Value) bool {
+	_, ok := v.(time.Time)
+	return ok
 }
 
 func Test_GetNoteByIdWithCourse(t *testing.T) {
@@ -227,6 +242,43 @@ func Test_AddNote_Case_2(t *testing.T) {
 	require.Equal(t, note.Pdf_filename, note_2.Pdf_filename)
 }
 
+func Test_AddNote_Case_3(t *testing.T) {
+	// Add note without course
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening database connection", err)
+	}
+	defer db.Close()
+	gdb, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: db,
+	}), &gorm.Config{})
+
+	persistence.InitTestDB(gdb)
+
+	mock.ExpectBegin()
+	mock.ExpectQuery(
+		`INSERT INTO "notes" ("created_at","updated_at","deleted_at","user_id","title","description","view_cnt","is_template","bean") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "id","course_id","pdf_filename","preview_filename","goodnotes_filename","notability_filename","id"`).
+		WithArgs(AnyTime{}, AnyTime{}, nil, note_1.User_id, note_1.Title, note_1.Description, 0, note_1.Is_template, note_1.Bean).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "course_id", "pdf_filename", "preview_filename", "goodnotes_filename", "notability_filename", "id"}).
+				AddRow(note_1.ID, nil, "", "", "", "", note_1.ID))
+	mock.ExpectCommit()
+
+	note, err := AddNote(note_1.User_id, note_1.Title, note_1.Description, note_1.Is_template, nil, note_1.Bean)
+
+	require.NoError(t, err)
+	require.Equal(t, note.ID, note_1.ID)
+	require.Equal(t, note.User_id, note_1.User_id)
+	require.Equal(t, note.Title, note_1.Title)
+	require.Equal(t, note.Description, note_1.Description)
+	require.Equal(t, note.Is_template, note_1.Is_template)
+	require.Equal(t, note.Bean, note_1.Bean)
+	require.Equal(t, note.Pdf_filename, note_1.Pdf_filename)
+	require.Equal(t, note.Preview_filename, note_1.Preview_filename)
+	require.Equal(t, note.Goodnotes_filename, note_1.Goodnotes_filename)
+	require.Equal(t, note.Notability_filename, note_1.Notability_filename)
+}
+
 func Test_UpdatePdfFilename(t *testing.T) {
 	mocket.Catcher.Register() // Safe register. Allowed multiple calls to save
 	mocket.Catcher.Logging = false
@@ -291,4 +343,54 @@ func Test_SearchNoteAll(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, note_cnt, int64(1))
 	require.Equal(t, note, results)
+}
+
+func Test_CheckUserBuyNote_Case_1(t *testing.T) {
+	// Can get buying record
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening database connection", err)
+	}
+	defer db.Close()
+	gdb, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: db,
+	}), &gorm.Config{})
+
+	persistence.InitTestDB(gdb)
+
+	mock.ExpectQuery(
+		`SELECT * FROM "downloads" WHERE "downloads"."user_id" = $1 AND "downloads"."note_id" = $2 AND "downloads"."deleted_at" IS NULL ORDER BY "downloads"."id" LIMIT 1`).
+		WithArgs(download_1.User_id, download_1.Note_id).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"user_id", "download_id"}).
+				AddRow(download_1.User_id, download_1.Note_id))
+
+	// now we execute our method
+	isBuy := CheckUserBuyNote(download_1.User_id, download_1.Note_id)
+
+	require.Equal(t, isBuy, true)
+}
+
+func Test_CheckUserBuyNote_Case_2(t *testing.T) {
+	// Cannot get buying record
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening database connection", err)
+	}
+	defer db.Close()
+	gdb, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: db,
+	}), &gorm.Config{})
+
+	persistence.InitTestDB(gdb)
+
+	mock.ExpectQuery(
+		`SELECT * FROM "downloads" WHERE "downloads"."user_id" = $1 AND "downloads"."note_id" = $2 AND "downloads"."deleted_at" IS NULL ORDER BY "downloads"."id" LIMIT 1`).
+		WithArgs(12, 80).
+		WillReturnError(errors.New("NotExist"))
+
+	// now we execute our method
+	isBuy := CheckUserBuyNote(12, 80)
+
+	require.Equal(t, isBuy, false)
 }
