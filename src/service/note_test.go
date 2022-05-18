@@ -245,3 +245,50 @@ func Test_UpdatePdfFilename(t *testing.T) {
 
 	require.NoError(t, err)
 }
+
+func Test_SearchNoteAll(t *testing.T) {
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening database connection", err)
+	}
+	defer db.Close()
+	gdb, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: db,
+	}), &gorm.Config{})
+
+	persistence.InitTestDB(gdb)
+
+	mock.ExpectQuery(
+		`SELECT notes.ID, notes.user_id, users.username, notes.title, notes.view_cnt, notes.preview_filename, notes.notability_filename, notes.goodnotes_filename, notes.created_at FROM "notes" JOIN users on notes.user_id = users.id WHERE lower(notes.title) LIKE $1 LIMIT 2`).
+		WithArgs("%5028%").
+		WillReturnRows(
+			sqlmock.NewRows([]string{"ID", "user_id", "username", "title", "view_cnt", "preview_filename", "notability_filename", "goodnotes_filename", "created_at"}).
+				AddRow(note_83.ID, note_83.User_id, note_83.User.Username, note_83.Title, note_83.View_cnt, note_83.Preview_filename, note_83.Notability_filename, note_83.Goodnotes_filename, note_83.CreatedAt))
+
+	mock.ExpectQuery(
+		`SELECT count(*) FROM "notes" JOIN users on notes.user_id = users.id WHERE lower(notes.title) LIKE $1`).
+		WithArgs("%5028%").
+		WillReturnRows(
+			sqlmock.NewRows([]string{"count"}).
+				AddRow(1))
+
+	// now we execute our method
+	note, note_cnt, err := SearchNote("5028", 0, 2, "all")
+	var results []SearchNoteOutput
+	result := SearchNoteOutput{
+		ID:                  note_83.ID,
+		User_id:             note_83.User_id,
+		Username:            note_83.User.Username,
+		Title:               note_83.Title,
+		Preview_filename:    note_83.Preview_filename,
+		View_cnt:            note_83.View_cnt,
+		Goodnotes_filename:  note_83.Goodnotes_filename,
+		Notability_filename: note_83.Notability_filename,
+		CreatedAt:           note_83.CreatedAt,
+	}
+	results = append(results, result)
+
+	require.NoError(t, err)
+	require.Equal(t, note_cnt, int64(1))
+	require.Equal(t, note, results)
+}
