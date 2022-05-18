@@ -40,7 +40,7 @@ var user_1 = &model.User{
 	Bean:        20000,
 }
 
-func Test_BuySale_Case_1(t *testing.T) {
+func Test_BuyNote_Case_1(t *testing.T) {
 	// User have not enough bean
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
@@ -72,7 +72,7 @@ func Test_BuySale_Case_1(t *testing.T) {
 	require.Equal(t, err, errors.New("No enough beans!"))
 }
 
-func Test_BuySale_Case_2(t *testing.T) {
+func Test_BuyNote_Case_2(t *testing.T) {
 	// User have enough bean
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
