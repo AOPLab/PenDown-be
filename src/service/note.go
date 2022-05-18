@@ -213,7 +213,6 @@ func SearchNote(q string, offset int, limit int, note_type string) ([]SearchNote
 	default:
 		break
 	}
-
 	return results, count, nil
 }
 
@@ -244,6 +243,7 @@ func SearchTemplate(q string, offset int, limit int, note_type string) ([]Search
 	default:
 		break
 	}
+
 	return results, count, nil
 }
 
