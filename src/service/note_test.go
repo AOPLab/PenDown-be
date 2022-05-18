@@ -40,6 +40,22 @@ var note_82 = &model.Note{
 	Notability_filename: "1652413416_9nIyu.note",
 	CreatedAt:           test_time,
 	Course:              *course_283,
+}
+
+var note_83 = &model.Note{
+	ID:                  83,
+	User_id:             12,
+	Title:               "IM5028-Lecture 01 Overview of SPM2",
+	Description:         "軟專第一堂課筆記2",
+	Is_template:         false,
+	Bean:                10,
+	View_cnt:            39,
+	Course_id:           283,
+	Pdf_filename:        "1652413412_KcB262.pdf",
+	Preview_filename:    "1652413412_G8lgY2.jpg",
+	Goodnotes_filename:  "",
+	Notability_filename: "1652413416_9nIyu2.note",
+	CreatedAt:           test_time,
 	User:                *user_12,
 }
 
