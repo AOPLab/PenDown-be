@@ -87,3 +87,7 @@
    ```shell
     docker run -d -p 8080:8080 pendown-be
    ```
+
+## Unit test
+
+* In root directory, execute `go test ./src/service -v`
