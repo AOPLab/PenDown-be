@@ -4,7 +4,7 @@
 
 0. Notice
    If you don't want to set up environment, you can jump to [set up](#set-up) directly and then [use docker](#use-docker)
-    Although you download both golang and gcc, you may still start fail due to package dependency. So docker is the recommended method.
+    Although you download both golang and gcc, you may still start fail due to package dependency. So **docker is the recommended method**.
     <br />
 
 1. Install golang
@@ -71,10 +71,11 @@
 
     ```shell
     go mod download
+    go mod tidy
     go run .
     ```
 
-## Use docker
+### Use docker
 
 1. build
 
@@ -90,4 +91,31 @@
 
 ## Unit test
 
-* In root directory, execute `go test ./src/service -v`
+> In root directory, execute `go test ./src/service -v`
+
+### Unit test we do
+
+1. **註冊帳號**
+   * Test_AddUser_Case_1 (Add normal user and success)
+   * Test_AddUser_Case_2 (Add existing user and fail)
+   * Test_AddGoogleUser
+2. **登入帳號**
+   * Test_FindUserByUsername
+   * Test_FindUserByGoogleId
+3. **上傳筆記**
+   * Test_AddNote_Case_1 (Without course)
+   * Test_AddNote_Case_2 (With course)
+   * Test_AddNote_Case_3 (Without course)
+   * Test_UpdatePdfFilename
+4. **搜尋筆記**
+   * Test_GetNoteByIdWithCourse
+   * Test_SearchNoteAll (Search note)
+5. **購買筆記**
+   * Test_CheckUserBuyNote_Case_1 (User have bought the note)
+   * Test_CheckUserBuyNote_Case_2 (User have not bought the note)
+   * Test_BuyNote_Case_1 (User have not enough beans)
+   * Test_BuyNote_Case_2 (User have enough beans)
+6. **個人筆記瀏覽**
+   * Test_GetUserNoteById
+7. **其他**
+   * Test_FindUserByAccountID
