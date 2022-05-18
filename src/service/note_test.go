@@ -7,12 +7,14 @@ import (
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
 	"github.com/DATA-DOG/go-sqlmock"
+	mocket "github.com/selvatico/go-mocket"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var test_time, time_err = time.Parse(time.RFC3339, "2022-05-13 03:43:29.278922+00")
+var test_time2, time2_err = time.Parse(time.RFC3339, "0001-01-01 00:00:00")
 
 var course_283 = &model.Course{
 	ID:                283,
@@ -37,11 +39,26 @@ var note_82 = &model.Note{
 	Preview_filename:    "1652413412_G8lgY.jpg",
 	Goodnotes_filename:  "",
 	Notability_filename: "1652413416_9nIyu.note",
-	CreatedAt:           test_time,
+	CreatedAt:           test_time2,
 	Course:              *course_283,
 }
 
-func Test_GetNoteWithCourse(t *testing.T) {
+var note_1 = &model.Note{
+	ID:                  1,
+	User_id:             10,
+	Title:               "Wifi protocol",
+	Description:         "802.11",
+	Is_template:         false,
+	Bean:                100,
+	View_cnt:            0,
+	Pdf_filename:        "",
+	Preview_filename:    "",
+	Goodnotes_filename:  "",
+	Notability_filename: "",
+	CreatedAt:           time.Now(),
+}
+
+func Test_GetNoteByIdWithCourse(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening database connection", err)
@@ -67,8 +84,90 @@ func Test_GetNoteWithCourse(t *testing.T) {
 				AddRow(note_82.Course.ID, note_82.Course.School_id, note_82.Course.Course_no, note_82.Course.Course_name, note_82.Course.View_cnt, note_82.Course.Note_cnt, note_82.Course.Last_updated_time))
 
 	// now we execute our method
-	note, err := GetNoteByIdWithCourse(82)
+	note, err := GetNoteByIdWithCourse(note_82.ID)
 
 	require.NoError(t, err)
 	require.Equal(t, note, note_82)
+}
+
+func Test_GetUserNoteById(t *testing.T) {
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening database connection", err)
+	}
+	defer db.Close()
+	gdb, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: db,
+	}), &gorm.Config{})
+
+	persistence.InitTestDB(gdb)
+
+	mock.ExpectQuery(
+		`SELECT * FROM "notes" WHERE "notes"."id" = $1 AND "notes"."user_id" = $2 AND "notes"."deleted_at" IS NULL AND "notes"."id" = $3 ORDER BY "notes"."id" LIMIT 1`).
+		WithArgs(note_82.ID, note_82.User_id, note_82.ID).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "user_id", "course_id", "title", "description", "is_template", "bean", "view_cnt", "pdf_filename", "preview_filename", "goodnotes_filename", "notability_filename", "created_at"}).
+				AddRow(note_82.ID, note_82.User_id, note_82.Course_id, note_82.Title, note_82.Description, note_82.Is_template, note_82.Bean, note_82.View_cnt, note_82.Pdf_filename, note_82.Preview_filename, note_82.Goodnotes_filename, note_82.Notability_filename, note_82.CreatedAt))
+	mock.ExpectQuery(
+		`SELECT * FROM "courses" WHERE "courses"."id" = $1 AND "courses"."deleted_at" IS NULL`).
+		WithArgs(note_82.Course_id).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "school_id", "course_no", "course_name", "view_cnt", "note_cnt", "last_updated_time"}).
+				AddRow(note_82.Course.ID, note_82.Course.School_id, note_82.Course.Course_no, note_82.Course.Course_name, note_82.Course.View_cnt, note_82.Course.Note_cnt, note_82.Course.Last_updated_time))
+
+	// now we execute our method
+	note, err := GetUserNoteById(note_82.User_id, note_82.ID)
+
+	require.NoError(t, err)
+	require.Equal(t, note, note_82)
+}
+
+func Test_AddNote_Case_1(t *testing.T) {
+	// Add note without course
+	mocket.Catcher.Register() // Safe register. Allowed multiple calls to save
+	mocket.Catcher.Logging = true
+
+	gdb, err := gorm.Open(postgres.New(postgres.Config{
+		DriverName: mocket.DriverName,
+		DSN:        "host=project:region:instance user=postgres dbname=postgres password=password sslmode=disable",
+	})) // Can be any connection string
+
+	persistence.InitTestDB(gdb)
+
+	// ("created_at","updated_at","deleted_at","user_id","title","description","view_cnt","is_template","bean")
+	// VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING "id","course_id","pdf_filename","preview_filename","goodnotes_filename","notability_filename","id"
+	commonReply := []map[string]interface{}{{"id": 1, "course_id": nil, "pdf_filename": "", "preview_filename": "", "goodnotes_filename": "", "notability_filename": ""}}
+	mocket.Catcher.NewMock().OneTime().WithQuery(`INSERT INTO "notes"`).WithReply(commonReply)
+	mocket.Catcher.NewMock().WithQuery(`UPDATE "users" SET "bean"=Bean + 30,"updated_at"=$2 WHERE "users"."deleted_at" IS NULL AND "id" = $3`)
+
+	note, err := AddNote(note_1.User_id, note_1.Title, note_1.Description, note_1.Is_template, nil, note_1.Bean)
+
+	require.NoError(t, err)
+	require.Equal(t, note.ID, note_1.ID)
+	require.Equal(t, note.User_id, note_1.User_id)
+	require.Equal(t, note.Title, note_1.Title)
+	require.Equal(t, note.Description, note_1.Description)
+	require.Equal(t, note.Is_template, note_1.Is_template)
+	require.Equal(t, note.Course_id, note_1.Course_id)
+	require.Equal(t, note.Bean, note_1.Bean)
+	require.Equal(t, note.Pdf_filename, note_1.Pdf_filename)
+}
+
+func Test_UpdatePdfFilename(t *testing.T) {
+	mocket.Catcher.Register() // Safe register. Allowed multiple calls to save
+	mocket.Catcher.Logging = true
+
+	gdb, err := gorm.Open(postgres.New(postgres.Config{
+		DriverName: mocket.DriverName,
+		DSN:        "host=project:region:instance user=postgres dbname=postgres password=password sslmode=disable",
+	})) // Can be any connection string
+
+	persistence.InitTestDB(gdb)
+
+	mocket.Catcher.NewMock().WithQuery(`UPDATE "notes" SET "updated_at"=$1,"pdf_filename"=$2,"preview_filename"=$3 WHERE "notes"."deleted_at" IS NULL AND "id" = $4`)
+
+	// now we execute our method
+	err = UpdatePdfFilename(82, "apple", "banana")
+
+	require.NoError(t, err)
 }
