@@ -40,6 +40,19 @@ var note_82 = &model.Note{
 	Notability_filename: "1652413416_9nIyu.note",
 	CreatedAt:           test_time,
 	Course:              *course_283,
+	User:                *user_12,
+}
+
+var user_12 = &model.User{
+	ID:          12,
+	Google_ID:   "wdwdw000",
+	Username:    "gary1030",
+	Full_name:   "Gary Hu",
+	Email:       "gary1030@gmail.com",
+	Password:    "wdw54t7q",
+	Description: "",
+	Status:      "BASIC",
+	Bean:        2000,
 }
 
 var note_1 = &model.Note{

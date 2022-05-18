@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -214,6 +215,9 @@ func SearchNote(q string, offset int, limit int, note_type string) ([]SearchNote
 		break
 	}
 
+	fmt.Print("\nsearchName: ", searchName, "\n")
+	fmt.Print("\nresults: ", results, "\n")
+	fmt.Print("\nnote cnt: ", count, "\n")
 	return results, count, nil
 }
 
@@ -244,6 +248,7 @@ func SearchTemplate(q string, offset int, limit int, note_type string) ([]Search
 	default:
 		break
 	}
+
 	return results, count, nil
 }
 
