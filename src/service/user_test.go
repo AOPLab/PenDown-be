@@ -14,7 +14,7 @@ import (
 
 var user_100 = &model.User{
 	ID:          100,
-	Google_ID:   "ndjcibu156",
+	Google_ID:   "",
 	Username:    "happyzzz",
 	Full_name:   "Zoe Chen",
 	Email:       "happyzzz@gmail.com",
@@ -22,6 +22,18 @@ var user_100 = &model.User{
 	Description: "",
 	Status:      "BASIC",
 	Bean:        1000,
+}
+
+var user_101 = &model.User{
+	ID:          101,
+	Google_ID:   "ndjcibu156",
+	Username:    "minican",
+	Full_name:   "Cindy Chen",
+	Email:       "minican@gmail.com",
+	Password:    "",
+	Description: "",
+	Status:      "BASIC",
+	Bean:        50,
 }
 
 func Test_FindUserByUsername(t *testing.T) {
@@ -62,14 +74,14 @@ func Test_FindUserByGoogleId(t *testing.T) {
 
 	mock.ExpectQuery(
 		`SELECT * FROM "users" WHERE google_id = $1 AND "users"."deleted_at" IS NULL ORDER BY "users"."id" LIMIT 1`).
-		WithArgs(user_100.Google_ID).
+		WithArgs(user_101.Google_ID).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "google_id", "username", "full_name", "email", "password", "description", "status", "bean"}).
-				AddRow(user_100.ID, user_100.Google_ID, user_100.Username, user_100.Full_name, user_100.Email, user_100.Password, user_100.Description, user_100.Status, user_100.Bean))
+				AddRow(user_101.ID, user_101.Google_ID, user_101.Username, user_101.Full_name, user_101.Email, user_101.Password, user_101.Description, user_101.Status, user_101.Bean))
 	user, err := findUserByGoogleId("ndjcibu156")
 
 	require.NoError(t, err)
-	require.Equal(t, user, user_100)
+	require.Equal(t, user, user_101)
 }
 
 func Test_FindUserByAccountID(t *testing.T) {
@@ -130,15 +142,15 @@ func Test_AddGoogleUser(t *testing.T) {
 	})) // Can be any connection string
 
 	persistence.InitTestDB(gdb)
-	commonReply := []map[string]interface{}{{"id": 100, "username": "happyzzz", "full_name": "Zoe Chen", "email": "happyzzz@gmail.com", "google_id": "ndjcibu156"}}
+	commonReply := []map[string]interface{}{{"id": 101, "username": "minican", "full_name": "Cindy Chen", "email": "minican@gmail.com", "google_id": "ndjcibu156"}}
 	mocket.Catcher.NewMock().OneTime().WithQuery(`INSERT INTO "users"`).WithArgs().WithReply(commonReply)
-	user, err := AddGoogleUser(user_100.Google_ID, user_100.Username, user_100.Full_name, user_100.Email)
+	user, err := AddGoogleUser(user_101.Google_ID, user_101.Username, user_101.Full_name, user_101.Email)
 
 	require.NoError(t, err)
-	require.Equal(t, user.ID, user_100.ID)
-	require.Equal(t, user.Username, user_100.Username)
-	require.Equal(t, user.Full_name, user_100.Full_name)
-	require.Equal(t, user.Email, user_100.Email)
-	require.Equal(t, user.Google_ID, user_100.Google_ID)
+	require.Equal(t, user.ID, user_101.ID)
+	require.Equal(t, user.Username, user_101.Username)
+	require.Equal(t, user.Full_name, user_101.Full_name)
+	require.Equal(t, user.Email, user_101.Email)
+	require.Equal(t, user.Google_ID, user_101.Google_ID)
 
 }
