@@ -72,6 +72,30 @@ func Test_FindUserByGoogleId(t *testing.T) {
 	require.Equal(t, user, user_100)
 }
 
+func Test_FindUserByAccountID(t *testing.T) {
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening database connection", err)
+	}
+	defer db.Close()
+	gdb, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: db,
+	}), &gorm.Config{})
+
+	persistence.InitTestDB(gdb)
+
+	mock.ExpectQuery(
+		`SELECT * FROM "users" WHERE ID = $1 AND "users"."deleted_at" IS NULL ORDER BY "users"."id" LIMIT 1`).
+		WithArgs(user_100.ID).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "google_id", "username", "full_name", "email", "password", "description", "status", "bean"}).
+				AddRow(user_100.ID, user_100.Google_ID, user_100.Username, user_100.Full_name, user_100.Email, user_100.Password, user_100.Description, user_100.Status, user_100.Bean))
+	user, err := findUserByAccountID(100)
+
+	require.NoError(t, err)
+	require.Equal(t, user, user_100)
+}
+
 // func Test_AddUser(t *testing.T) {
 // 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 // 	if err != nil {
