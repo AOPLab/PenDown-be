@@ -2,11 +2,11 @@ package service
 
 import (
 	"testing"
-	_ "time"
 
 	"github.com/AOPLab/PenDown-be/src/model"
 	"github.com/AOPLab/PenDown-be/src/persistence"
 	"github.com/DATA-DOG/go-sqlmock"
+	mocket "github.com/selvatico/go-mocket"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -96,16 +96,49 @@ func Test_FindUserByAccountID(t *testing.T) {
 	require.Equal(t, user, user_100)
 }
 
-// func Test_AddUser(t *testing.T) {
-// 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-// 	if err != nil {
-// 		t.Fatalf("an error '%s' was not expected when opening database connection", err)
-// 	}
-// 	defer db.Close()
-// 	gdb, err := gorm.Open(postgres.New(postgres.Config{
-// 		Conn: db,
-// 	}), &gorm.Config{})
+func Test_AddUser(t *testing.T) {
+	// Add note without course
+	mocket.Catcher.Register() // Safe register. Allowed multiple calls to save
+	mocket.Catcher.Logging = false
 
-// 	persistence.InitTestDB(gdb)
+	gdb, err := gorm.Open(postgres.New(postgres.Config{
+		DriverName: mocket.DriverName,
+		DSN:        "host=project:region:instance user=postgres dbname=postgres password=password sslmode=disable",
+	})) // Can be any connection string
 
-// }
+	persistence.InitTestDB(gdb)
+	commonReply := []map[string]interface{}{{"id": 100, "username": "happyzzz", "full_name": "Zoe Chen", "email": "happyzzz@gmail.com", "password": "jicdnwij8889"}}
+	mocket.Catcher.NewMock().OneTime().WithQuery(`INSERT INTO "users"`).WithArgs().WithReply(commonReply)
+	user, err := AddUser(user_100.Username, user_100.Full_name, user_100.Email, user_100.Password)
+
+	require.NoError(t, err)
+	require.Equal(t, user.ID, user_100.ID)
+	require.Equal(t, user.Username, user_100.Username)
+	require.Equal(t, user.Full_name, user_100.Full_name)
+	require.Equal(t, user.Email, user_100.Email)
+
+}
+
+func Test_AddGoogleUser(t *testing.T) {
+	// Add note without course
+	mocket.Catcher.Register() // Safe register. Allowed multiple calls to save
+	mocket.Catcher.Logging = false
+
+	gdb, err := gorm.Open(postgres.New(postgres.Config{
+		DriverName: mocket.DriverName,
+		DSN:        "host=project:region:instance user=postgres dbname=postgres password=password sslmode=disable",
+	})) // Can be any connection string
+
+	persistence.InitTestDB(gdb)
+	commonReply := []map[string]interface{}{{"id": 100, "username": "happyzzz", "full_name": "Zoe Chen", "email": "happyzzz@gmail.com", "google_id": "ndjcibu156"}}
+	mocket.Catcher.NewMock().OneTime().WithQuery(`INSERT INTO "users"`).WithArgs().WithReply(commonReply)
+	user, err := AddGoogleUser(user_100.Google_ID, user_100.Username, user_100.Full_name, user_100.Email)
+
+	require.NoError(t, err)
+	require.Equal(t, user.ID, user_100.ID)
+	require.Equal(t, user.Username, user_100.Username)
+	require.Equal(t, user.Full_name, user_100.Full_name)
+	require.Equal(t, user.Email, user_100.Email)
+	require.Equal(t, user.Google_ID, user_100.Google_ID)
+
+}
