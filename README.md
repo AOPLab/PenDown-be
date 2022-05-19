@@ -3,25 +3,30 @@
 ## Before Start
 
 0. Notice
+   
    If you don't want to set up environment, you can jump to [set up](#set-up) directly and then [use docker](#use-docker)
-    Although you download both golang and gcc, you may still start fail due to package dependency. So **docker is the recommended method**.
-    <br />
+   
+   Although you download both golang and gcc, you may still start fail due to package dependency. 
+   
+   So **docker is the recommended method**.
 
 1. Install golang
-    You should follow the official [install instruction](https://go.dev/doc/install).
-    <br />
+   
+   You should follow the official [install instruction](https://go.dev/doc/install).
 
 2. Check golang version
-    You can check in your terminal.
+   
+   You can check in your terminal.
 
-    ```shell
-    go version
-
-    // expected output, at least 1.17.6
-    // go version go1.17.6
-    ```
+   ```shell
+   go version
+   
+   // expected output, at least 1.17.6
+   // go version go1.17.6
+   ```
 
 3. Install gcc
+   
    Check you have gcc or type `gcc -v ` in terminal.
    
 
@@ -99,23 +104,30 @@
    * Test_AddUser_Case_1 (Add normal user and success)
    * Test_AddUser_Case_2 (Add existing user and fail)
    * Test_AddGoogleUser
+   
 2. **登入帳號**
    * Test_FindUserByUsername
    * Test_FindUserByGoogleId
+   
 3. **上傳筆記**
    * Test_AddNote_Case_1 (Without course)
    * Test_AddNote_Case_2 (With course)
    * Test_AddNote_Case_3 (Without course)
    * Test_UpdatePdfFilename
+   
 4. **搜尋筆記**
    * Test_GetNoteByIdWithCourse
    * Test_SearchNoteAll (Search note)
+   
 5. **購買筆記**
    * Test_CheckUserBuyNote_Case_1 (User have bought the note)
    * Test_CheckUserBuyNote_Case_2 (User have not bought the note)
    * Test_BuyNote_Case_1 (User have not enough beans)
    * Test_BuyNote_Case_2 (User have enough beans)
+   
 6. **個人筆記瀏覽**
    * Test_GetUserNoteById
+   
 7. **其他**
    * Test_FindUserByAccountID
+
