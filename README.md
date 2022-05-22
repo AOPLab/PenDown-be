@@ -27,7 +27,7 @@
 
 3. Install gcc
    
-   Check you have gcc or type `gcc -v ` in terminal.
+   Check you have gcc or type `gcc -v ` in terminal. (Version at least 8.1.0 or above)
    
 
 ## Set up
@@ -51,8 +51,8 @@
     ```
 
 4. Put firebase file
+   
    Put your firebase secret file (json format) in root.
-   <br />
 
 5. Edit `.env` file
 
