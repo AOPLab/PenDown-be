@@ -420,12 +420,13 @@ func GetOwnNotes(c *gin.Context) {
 			note_output := &NoteBrief{
 				Note_ID:          note.Note_id,
 				Account_ID:       note.Note.User_id,
-				Username:         note.User.Username,
 				Title:            note.Note.Title,
 				Preview_filename: note.Note.Preview_filename,
 				View_cnt:         note.Note.View_cnt,
 				CreatedAt:        note.Note.CreatedAt,
 			}
+			username, _ := service.GetUserNameByUserId(note.Note.User_id)
+			note_output.Username = username
 			// add note type
 			if note.Note.Notability_filename != "" && note.Note.Goodnotes_filename != "" {
 				note_output.Note_type = "All"
@@ -477,12 +478,13 @@ func GetOwnNotes(c *gin.Context) {
 			note_output := &NoteBrief{
 				Note_ID:          note.Note_id,
 				Account_ID:       note.Note.User_id,
-				Username:         note.User.Username,
 				Title:            note.Note.Title,
 				Preview_filename: note.Note.Preview_filename,
 				View_cnt:         note.Note.View_cnt,
 				CreatedAt:        note.Note.CreatedAt,
 			}
+			username, _ := service.GetUserNameByUserId(note.Note.User_id)
+			note_output.Username = username
 			// add note type
 			if note.Note.Notability_filename != "" && note.Note.Goodnotes_filename != "" {
 				note_output.Note_type = "All"
