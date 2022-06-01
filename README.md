@@ -8,7 +8,7 @@
    
    Although you download both golang and gcc, you may still start fail due to package dependency. 
    
-   So **docker is the recommended method**.
+   So **[docker](https://www.docker.com/get-started/) is the recommended method**.
 
 1. Install golang
    
