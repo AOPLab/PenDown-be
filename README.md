@@ -95,6 +95,9 @@
     docker run -d -p 8080:8080 pendown-be
    ```
 
+
+After all this, you shall be able to visit http://localhost:8080/ in your browser, and it should display "404 page not found". 
+
 ## Unit test
 
 > In root directory, execute `go test ./src/service -v`
