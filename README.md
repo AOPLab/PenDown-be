@@ -52,7 +52,8 @@
 
 4. Put firebase file
    
-   Put your firebase secret file (json format) in root.
+   Put your firebase secret file (json format) in root. Follow [official document](https://firebase.google.com/) to get it. <br />
+   Or contact us to get the file.
 
 5. Edit `.env` file
 
