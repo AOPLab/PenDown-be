@@ -41,7 +41,7 @@
 2. Change directory
 
    ```shell
-   cd github.com/AOPLab/PenDown-be
+   cd PenDown-be
    ```
 
 3. Copy configuration files
