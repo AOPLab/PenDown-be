@@ -92,7 +92,7 @@
 2. run
 
    ```shell
-    docker run -d -p 8080:8080 pendown-be
+    docker run -p 8080:8080 pendown-be
    ```
 
 
