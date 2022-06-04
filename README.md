@@ -4,7 +4,7 @@
 
 **Notice** (for Windows users):
    
-> If you don't want to set up environment, you can jump to the [Set Up](#set-up) section and then go for [Option 2 - Using Docker](#using-docker)
+> If you don't want to install golang and gcc on your machine, you can jump to the [Set Up](#set-up) section and then go for [Option 2 - Using Docker](#using-docker)
 >   
 > Although you download both golang and gcc, you may still start fail due to package dependency. 
 >    
@@ -41,7 +41,7 @@
 2. Change directory
 
    ```shell
-   cd github.com/AOPLab/PenDown-be
+   cd PenDown-be
    ```
 
 3. Copy configuration files
@@ -54,7 +54,7 @@
    
    Put your firebase secret file (json format) in root. Follow [official document](https://firebase.google.com/) to get it.
 
-   Or contact us to get the file, which is recommended.
+   Or you can simply contact us to get the file, which is recommended.
 
 
 5. Edit `.env` file
@@ -69,10 +69,10 @@
 
     # Firebase
     SA_PATH=YOUR_FIREBASE_SECRET_FILE_PATH
-    BUCKET_NAME=YOUR_FIREBASE_BUCKET_NAME
+    BUCKET_NAME=<YOUR_FIREBASE_BUCKET_NAME>.appspot.com
 
     # jwt
-    jwt_token=
+    jwt_token=ANY_STRING
     ```
 
 6. Choose either [Option 1](#option-1---using-go-directly) or [Option 2](#option-2---using-docker) to start up the server.
@@ -90,6 +90,8 @@
 
 ### Option 2 - Using Docker
 
+Before using docker, you have to complete [set up](#set-up).
+
 1. build
 
    ```shell
@@ -99,17 +101,17 @@
 2. run
 
    ```shell
-    docker run -d -p 8080:8080 pendown-be
+    docker run -p 8080:8080 pendown-be
    ```
 
 
 After all this, you shall be able to visit http://localhost:8080/ in your browser, and it should display "404 page not found". 
 
-## Unit test
+## Unit Testing
 
 > In root directory, execute `go test ./src/service -v`
 
-### Unit test we do
+### Unit Tests We Did
 
 1. **註冊帳號**
    * Test_AddUser_Case_1 (Add normal user and success)
