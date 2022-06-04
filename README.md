@@ -1,14 +1,14 @@
 # PenDown-Backend
 
-## Before Start
+## Before You Start
 
-0. Notice
+**Notice** (for Windows users):
    
-   If you don't want to set up environment, you can jump to [set up](#set-up) directly and then [use docker](#use-docker)
-   
-   Although you download both golang and gcc, you may still start fail due to package dependency. 
-   
-   So **[docker](https://www.docker.com/get-started/) is the recommended method**.
+> If you don't want to set up environment, you can jump to the [Set Up](#set-up) section and then go for [Option 2 - Using Docker](#using-docker)
+>   
+> Although you download both golang and gcc, you may still start fail due to package dependency. 
+>    
+> Therefore, **[Docker](https://www.docker.com/get-started/) is the recommended method**.
 
 1. Install golang
    
@@ -30,7 +30,7 @@
    Check you have gcc or type `gcc -v ` in terminal. (Version at least 8.1.0 or above)
    
 
-## Set up
+## Set Up
 
 1. Clone project
 
@@ -50,10 +50,12 @@
     cp .env.example .env
     ```
 
-4. Put firebase file
+4. Put firebase file (`pendown-firebase.json` file)
    
-   Put your firebase secret file (json format) in root. Follow [official document](https://firebase.google.com/) to get it. <br />
-   Or contact us to get the file.
+   Put your firebase secret file (json format) in root. Follow [official document](https://firebase.google.com/) to get it.
+
+   Or contact us to get the file, which is recommended.
+
 
 5. Edit `.env` file
 
@@ -73,7 +75,12 @@
     jwt_token=
     ```
 
-6. Start backend service or [use docker](#use-docker)
+6. Choose either [Option 1](#option-1---using-go-directly) or [Option 2](#option-2---using-docker) to start up the server.
+
+
+### Option 1 - Using Go Directly
+
+1. Start backend service 
 
     ```shell
     go mod download
@@ -81,7 +88,7 @@
     go run .
     ```
 
-### Use docker
+### Option 2 - Using Docker
 
 1. build
 
