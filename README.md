@@ -4,7 +4,7 @@
 
 0. Notice
    
-   If you don't want to set up environment, you can jump to [set up](#set-up) directly and then [use docker](#use-docker)
+   If you don't want to install golang and gcc on your machine, you can jump to [set up](#set-up) directly and then [use docker](#use-docker)
    
    Although you download both golang and gcc, you may still start fail due to package dependency. 
    
@@ -52,8 +52,8 @@
 
 4. Put firebase file
    
-   Put your firebase secret file (json format) in root. Follow [official document](https://firebase.google.com/) to get it. <br />
-   Or contact us to get the file.
+   Put your firebase secret file (json format) in root. <br />
+   Follow [official document](https://firebase.google.com/) to get it or **contact us to get the file**.
 
 5. Edit `.env` file
 
@@ -67,10 +67,10 @@
 
     # Firebase
     SA_PATH=YOUR_FIREBASE_SECRET_FILE_PATH
-    BUCKET_NAME=YOUR_FIREBASE_BUCKET_NAME
+    BUCKET_NAME=<YOUR_FIREBASE_BUCKET_NAME>.appspot.com
 
     # jwt
-    jwt_token=
+    jwt_token=ANY_STRING
     ```
 
 6. Start backend service or [use docker](#use-docker)
@@ -82,6 +82,8 @@
     ```
 
 ### Use docker
+
+Before using docker, you have to complete [set up](#set-up).
 
 1. build
 
