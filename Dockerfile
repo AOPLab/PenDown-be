@@ -7,11 +7,13 @@ RUN apk add --no-cache build-base \
     jbig2dec jbig2dec-dev \
     jpeg jpeg-dev \
     openjpeg openjpeg-dev \
-    zlib zlib-dev
+    zlib zlib-dev curl
 
 WORKDIR /app
 
 COPY . .
+
+RUN curl -L -o "pendown-firebase.json" "https://drive.google.com/uc?export=download&id=1hFqR4koE3aUD_TlXiMLXasSjOir01GBt"
 
 RUN export CGO_LDFLAGS="-lmupdf -lm -lmupdf-third -lfreetype -ljbig2dec -lharfbuzz -ljpeg -lopenjp2 -lz" \
     && go mod download \
