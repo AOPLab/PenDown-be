@@ -12,7 +12,6 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func test(c *gin.Context) {
@@ -21,10 +20,10 @@ func test(c *gin.Context) {
 }
 
 func main() {
-	envErr := godotenv.Load()
-	if envErr != nil {
-		log.Fatal("Error loading .env file")
-	}
+	// envErr := godotenv.Load()
+	// if envErr != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
 
 	host := os.Getenv("PG_HOST")
 	pgPort := os.Getenv("PG_PORT")
